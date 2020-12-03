@@ -12,36 +12,28 @@ let input2 = "L1005,D52,L125,U787,L761,U262,L466,D966,R895,U789,R6,U2,R870,U971,
 # let input1 = "R8,U5,L5,D3"
 # let input2 = "U7,R6,D4,L4"
 
-proc findTarget(paths: seq[string]): seq[(int, int)] =
+var diffs : array[char, (int, int)]
+diffs['D'] = (0,-1)
+diffs['L'] = (-1,0)
+diffs['R'] = (1,0)
+diffs['U'] = (0,1)
+
+proc traceSteps(paths: seq[string]): seq[(int, int)] =
 
     result = newSeq[(int, int)]()
-    var x = 0.int
-    var y = 0.int
-    
+    var x, y = 0
+
     for path in paths:
         let dist = path[1..^1].parseInt
+        let (xd, yd) = diffs[path[0]]
 
-        case path[0]
-        of 'R': 
-            for r in countup(1, dist):
-                result.add((x + r, y))
-            x += dist
-        of 'L': 
-            for l in countup(1, dist):
-                result.add((x - l, y))
-            x -= dist
-        of 'U': 
-            for u in countup(1, dist):
-                result.add((x, y+u))
-            y += dist
-        of 'D': 
-            for d in countup(1, dist):
-                result.add((x, y-d))
-            y -= dist
-        else: discard
+        for r in countup(1, dist):
+            x += xd
+            y += yd
+            result.add((x, y))
 
-let seq1 = findTarget(input1.split({','}))
-let seq2 = findTarget(input2.split({','}))
+let seq1 = traceSteps(input1.split({','}))
+let seq2 = traceSteps(input2.split({','}))
 
 let set1 = seq1.toHashSet
 let set2 = seq2.toHashSet
