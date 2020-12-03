@@ -5,7 +5,7 @@ let input = "1,0,0,3,1,1,2,3,1,3,4,3,1,5,0,3,2,6,1,19,1,19,5,23,2,10,23,27,2,27,
     
 var state = input.split({','}).map(parseInt)
 
-proc evalProgram(state: var seq[int], noun, verb: int): bool =
+proc evalProgram(state: var seq[int], noun, verb: int): int =
 
     state[1] = noun
     state[2] = verb
@@ -33,12 +33,12 @@ proc evalProgram(state: var seq[int], noun, verb: int): bool =
 
         i += 4
 
-    state[0] == 19690720
+    state[0]
 
 
 for noun in 0..99:
     for verb in 0..99:
         var state = state.toSeq()
-        if evalProgram(state, noun, verb):
+        if evalProgram(state, noun, verb) == 19690720:
             echo 100 * noun + verb
             break
