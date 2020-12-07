@@ -1166,43 +1166,47 @@ RGB)B1D
 PGK)W8Z
 SC9)KN2"""
 
+
 type 
-    SpaceObject = ref object
+    SpaceObject = object
         id: string
-        obj: SpaceObject
-        direct: seq[SpaceObject]
+        obj: SpaceObjectRef
+        direct: seq[SpaceObjectRef]
 
-    SpaceManager = ref object
-        allObjects: Table[string, SpaceObject]
+    SpaceObjectRef = ref SpaceObject
 
-proc getOrCreate(sm: SpaceManager, id: string): SpaceObject =
+    SpaceManager = object
+        allObjects: Table[string, SpaceObjectRef]
+
+    SpaceManagerRef = ref SpaceManager
+
+proc getOrCreate(sm: SpaceManagerRef, id: string): SpaceObjectRef =
     if not sm.allObjects.hasKey(id):
-        sm.allObjects[id] = SpaceObject(id: id, obj: nil, direct: @[])
+        sm.allObjects[id] = SpaceObjectRef(id: id, direct: @[])
 
     return sm.allObjects[id]
 
-proc addOrbiter(sm: SpaceManager, id: string, orbiterId: string) =
+proc addOrbiter(sm: SpaceManagerRef, id: string, orbiterId: string) =
 
-    var so = sm.getOrCreate(id)
+    let so = sm.getOrCreate(id)
     let orbiter = sm.getOrCreate(orbiterId)
     orbiter.obj = so
 
     so.direct.add(orbiter)
 
-proc checkSum(so: SpaceObject, indirect: int = 0): int =
+proc checkSum(so: SpaceObjectRef, indirect: int = 0): int =
     indirect + so.direct.mapIt(checkSum(it, indirect+1)).foldl(a + b, 0)
 
-proc objects(orbiter: SpaceObject): seq[SpaceObject] =
+proc objects(orbiter: SpaceObjectRef): seq[SpaceObjectRef] =
     
     var o = orbiter.obj
-    result = newSeq[SpaceObject]()
+    result = newSeq[SpaceObjectRef]()
 
     while o != nil:
         result.add(o)
         o = o.obj
 
-
-let sm = SpaceManager(allObjects: initTable[string, SpaceObject]())
+let sm = SpaceManagerRef(allObjects: initTable[string, SpaceObjectRef]())
 
 discard sm.getOrCreate("COM")
 
