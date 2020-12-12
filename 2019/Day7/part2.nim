@@ -13,17 +13,21 @@ proc evalProgram(state: var seq[int], i: var int, phaseSetting: int, outputSigna
     while state[i] != 99:
 
         let 
-            loc1 = state[i+1]
-            loc2 = state[i+2]
             opcode = state[i] %% 100
             c = (state[i] div 100) %% 10
             b = (state[i] div 1000) %% 10
             # a = (state[i] div 10000) %% 10
 
         var
-            op1 = loc1
-            op2 = loc2
-           
+            op1 = state[i+1]
+            op2 = state[i+2]
+
+        if opcode notin @[3,4]:
+
+            if c == 0:
+                op1 = state[state[i+1]]
+            if b == 0:
+                op2 = state[state[i+2]]
 
         if state[i] > 10000:
             echo "Unexpected instruction!"
@@ -31,47 +35,30 @@ proc evalProgram(state: var seq[int], i: var int, phaseSetting: int, outputSigna
 
         case opcode
         of 1:
-            if c == 0:
-                op1 = state[loc1]
-            if b == 0:
-                op2 = state[loc2]
-
             state[state[i+3]] = op1 + op2 #add
             i += 4
 
         of 2:
-            if c == 0:
-                op1 = state[loc1]
-            if b == 0:
-                op2 = state[loc2]
-
             state[state[i+3]] = op1 * op2 #multiplication
-
             i += 4
         of 3:
-
             if i == 0:
-                state[loc1] = phaseSetting
-
+                state[state[i+1]] = phaseSetting
             else:
-                state[loc1] = outputSignal
+                state[state[i+1]] = outputSignal
 
             i += 2
 
         of 4:
 
             if c == 0:
-                outputSignal = state[loc1]
+                outputSignal = state[state[i+1]]
 
             i += 2
             
             return (outputSignal, true)
 
         of 5:
-            if c == 0:
-                op1 = state[loc1]
-            if b == 0:
-                op2 = state[loc2]
 
             if op1 != 0:
                 i = op2
@@ -79,10 +66,6 @@ proc evalProgram(state: var seq[int], i: var int, phaseSetting: int, outputSigna
                 i += 3
 
         of 6:
-            if c == 0:
-                op1 = state[loc1]
-            if b == 0:
-                op2 = state[loc2]
 
             if op1 == 0:
                 i = op2
@@ -90,10 +73,6 @@ proc evalProgram(state: var seq[int], i: var int, phaseSetting: int, outputSigna
                 i += 3
 
         of 7:
-            if c == 0:
-                op1 = state[loc1]
-            if b == 0:
-                op2 = state[loc2]
 
             if op1 < op2:
                 state[state[i+3]] = 1
@@ -103,10 +82,6 @@ proc evalProgram(state: var seq[int], i: var int, phaseSetting: int, outputSigna
             i += 4
                 
         of 8:
-            if c == 0:
-                op1 = state[loc1]
-            if b == 0:
-                op2 = state[loc2]
 
             if op1 == op2:
                 state[state[i+3]] = 1
