@@ -113,46 +113,33 @@ L.LLLLL.LL"""
 
 var rows = input.splitLines()
 
-proc round(): bool =
+proc modifySeats(): bool =
 
     let copy = rows.mapIt(it).toSeq
 
-    proc checkIfEmpty(rc: (int, int)): bool =
-        let r = rc[0]
-        let c = rc[1]
+    proc check(r, c: int, chars: seq[char]): bool =
 
         if r >= len(copy) or r < 0: return true
         if c >= len(copy[0]) or c < 0: return true
-        let seat = copy[r][c]
-
-        seat == 'L' or seat == '.'
-
-    proc checkIfOccupied(rc: (int, int)): bool =
-        let r = rc[0]
-        let c = rc[1]
-
-        if r >= len(copy) or r < 0: return false
-        if c >= len(copy[0]) or c < 0: return false
-        let seat = copy[r][c]
-
-        seat == '#' 
+        
+        copy[r][c] in chars
 
     var changed = false
     for r, row in rows:
         for c, seat in row:
             let surrounding = [(r, c-1), (r, c+1), (r+1, c), (r-1, c), (r+1,c-1), (r+1, c+1), (r-1, c-1), (r-1, c+1)]
 
-            if seat == 'L' and surrounding.allIt(checkIfEmpty((it[0],it[1]))):
+            if seat == 'L' and surrounding.allIt(check(it[0], it[1], @['L', '.'])):
                     rows[r][c] = '#'
                     changed = true
             
-            elif seat == '#' and surrounding.filterIt(checkIfOccupied((it[0],it[1]))).len >= 4:
+            elif seat == '#' and surrounding.filterIt(check(it[0], it[1], @['#'])).len >= 4:
                     rows[r][c] = 'L'
                     changed = true
 
     changed 
 
-while round():
+while modifySeats():
     discard
 
 echo rows.mapIt(it.filterIt(it == '#').len).foldl(a+b)

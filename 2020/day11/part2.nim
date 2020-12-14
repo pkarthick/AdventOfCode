@@ -113,7 +113,7 @@ L.LLLLL.LL"""
 
 var rows = input.splitLines()
 
-proc round(): bool =
+proc modifySeats(): bool =
 
     let copy = rows.mapIt(it).toSeq
 
@@ -238,7 +238,7 @@ proc round(): bool =
 
     changed 
 
-while round():
+while modifySeats():
     discard
 
 echo rows.mapIt(it.filterIt(it == '#').len).foldl(a+b)
