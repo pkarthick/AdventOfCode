@@ -2,9 +2,9 @@ import strutils
 import sequtils
 
 let input="15,5,1,4,7,0"
-let input1="0,3,6"
+# let input1="0,3,6"
 
-let nums = input1.split({','}).mapIt(it.parseInt)
+let nums = input.split({','}).mapIt(it.parseInt)
 
 var pairs: array[0 .. 2020 - 1, (int, int)]
 let turn = 2020
