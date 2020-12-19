@@ -1,3 +1,6 @@
+import strutils
+import sequtils
+import algorithm
 import options
 
 func pair(elems: seq[int], total: int): Option[(int, int)] =
@@ -34,3 +37,17 @@ func triple*(elems: seq[int], total: int): (int, int, int) =
         if twin.isSome:
             let (second, third) = twin.get()
             return (first, second, third)
+
+
+let input="""1721
+979
+366
+299
+675
+1456"""
+
+let elems = input.splitLines().map(parseInt).sorted()
+
+let (n1, n2, n3) = triple(elems, 2020)
+assert(n1+n2+n3 == 2020)
+echo n1 * n2 * n3

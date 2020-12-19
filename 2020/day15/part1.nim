@@ -1,8 +1,7 @@
 import strutils
 import sequtils
 
-let input="15,5,1,4,7,0"
-# let input1="0,3,6"
+let input="0,3,6"
 
 let nums = input.split({','}).mapIt(it.parseInt)
 

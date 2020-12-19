@@ -1,116 +1,7 @@
 import strutils
 import sequtils
 import algorithm
-import sets
-import options
-import sugar
-import deques
 import tables
-
-let input="""49
-89
-70
-56
-34
-14
-102
-148
-143
-71
-15
-107
-127
-165
-135
-26
-119
-46
-53
-69
-134
-1
-40
-81
-140
-160
-33
-117
-82
-55
-25
-11
-128
-159
-61
-105
-112
-99
-93
-151
-20
-108
-168
-2
-109
-75
-139
-170
-65
-114
-21
-92
-106
-162
-124
-158
-38
-136
-95
-161
-146
-129
-154
-121
-86
-118
-88
-50
-48
-62
-155
-28
-120
-78
-60
-147
-87
-27
-7
-54
-39
-113
-5
-74
-169
-6
-43
-8
-29
-18
-68
-32
-19
-133
-22
-94
-47
-132
-59
-83
-12
-13
-96
-35"""
 
 let input1="""28
 33
@@ -158,7 +49,7 @@ let input2="""16
 
 
 
-var jolts = input.splitLines.mapIt(it.parseInt).sorted()
+var jolts = input1.splitLines.mapIt(it.parseInt).sorted()
 jolts.add jolts[^1]+3
 
 proc countCombinations(jolts: seq[int]): int =

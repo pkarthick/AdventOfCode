@@ -4,9 +4,6 @@ import sequtils
 let input1="""939
 7,13,x,x,59,x,31,19"""
 
-let input="""1000509
-17,x,x,x,x,x,x,x,x,x,x,37,x,x,x,x,x,739,x,29,x,x,x,x,x,x,x,x,x,x,13,x,x,x,x,x,x,x,x,x,23,x,x,x,x,x,x,x,971,x,x,x,x,x,x,x,x,x,41,x,x,x,x,x,x,x,x,19"""
-
 let lines = input1.splitLines()
 
 let time = lines[0].parseInt
