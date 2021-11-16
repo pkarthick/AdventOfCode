@@ -4,4 +4,4 @@
 
 December 2020 was absolute fun! 
 
-![Completeed Advent of Code 2020](https://github.com/pkarthick/AdventOfCode/blob/master/2020/Completed2020.jpg)
+![Completeed Advent of Code 2020](https://github.com/pkarthick/AdventOfCode/blob/master/2020/nim/Completed2020.jpg)
