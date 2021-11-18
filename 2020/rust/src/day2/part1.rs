@@ -1,7 +1,7 @@
 struct PasswordInfo {
     min: usize,
     max: usize,
-    ch: String,
+    ch: char,
     password: String
 }
 
@@ -12,7 +12,7 @@ fn create_input(s: String) -> Vec<PasswordInfo> {
         PasswordInfo {
             min: v[0].parse::<usize>().unwrap(),
             max: v[1].parse::<usize>().unwrap(),
-            ch: v[2].into(),
+            ch: v[2].chars().nth(0).unwrap(),
             password: v[4].into(),
         }
     }).collect::<Vec<PasswordInfo>>()
@@ -21,7 +21,7 @@ fn create_input(s: String) -> Vec<PasswordInfo> {
 
 fn process_input(passwords: Vec<PasswordInfo>) -> Result<usize, String> {
     let count = passwords.into_iter().filter(|pi| {
-        let times = &pi.password[..].matches(&pi.ch).collect::<Vec<_>>().len();
+        let times = &pi.password[..].matches(pi.ch).collect::<Vec<_>>().len();
         *times >= pi.min && *times <= pi.max
     }).count();
     Ok(count)
