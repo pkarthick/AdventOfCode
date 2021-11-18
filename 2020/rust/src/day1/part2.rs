@@ -59,7 +59,7 @@ mod tests {
 
     #[test]
     fn test() {
-        let part = Part::<Input, i32>::new(1, PartKind::Two, create_input, process_input);
+        let part = Part::new(1, PartKind::Two, create_input, process_input);
         assert!(part.test_sample().is_ok());
         assert!(part.test_puzzle().is_ok());
     }    
