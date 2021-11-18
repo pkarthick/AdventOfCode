@@ -43,7 +43,7 @@ fn get_file_content(
         PartKind::Two => 2,
     };
 
-    let filename = format!("./{}/{}_{}.{}", day, input_kind, part, file_kind);
+    let filename = format!("./testdata/{}/{}_{}.{}", day, input_kind, part, file_kind);
 
     std::fs::read_to_string(filename).expect("File opening issue!")
 }
