@@ -1,13 +1,14 @@
+use core::*;
+
 struct PasswordInfo {
     min: usize,
     max: usize,
     ch: char,
-    password: String
+    password: String,
 }
 
-fn create_input(s: String) -> Vec<PasswordInfo> {
-
-    s.split('\n').map(|s| {
+impl PasswordInfo {
+    fn new(s: &str) -> Self {
         let v: Vec<&str> = s.trim().split(&['-', ' ', ':'][..]).collect();
         PasswordInfo {
             min: v[0].parse::<usize>().unwrap(),
@@ -15,32 +16,48 @@ fn create_input(s: String) -> Vec<PasswordInfo> {
             ch: v[2].chars().nth(0).unwrap(),
             password: v[4].into(),
         }
-    }).collect::<Vec<PasswordInfo>>()
+    }
 
+    fn is_valid(&self) -> bool {
+        let instances = &self.password[..];
+        let min = instances.chars().nth(self.min - 1).unwrap();
+        let max = instances.chars().nth(self.max - 1).unwrap();
+
+        (min == self.ch && max != self.ch) || (min != self.ch && max == self.ch)
+    }
 }
 
-fn process_input(passwords: Vec<PasswordInfo>) -> Result<usize, String> {
-    let count = passwords.into_iter().filter(|pi| {
-        let instances = &pi.password[..];
-        let min = instances.chars().nth(pi.min-1).unwrap();
-        let max = instances.chars().nth(pi.max-1).unwrap();
+struct PartTwo {}
 
-        (min == pi.ch && max != pi.ch) || (min != pi.ch && max == pi.ch)
-        
-    }).count();
-    Ok(count)
+impl PartSpec for PartTwo {
+    fn get_day(&self) -> i32 {
+        2
+    }
+
+    fn get_part_kind(&self) -> PartKind {
+        PartKind::Two
+    }
 }
 
+impl TestPart for PartTwo {
+    fn process_input(&self, input: String) -> String {
+        let passwords: Vec<PasswordInfo> = input.split('\n').map(PasswordInfo::new).collect();
+
+        passwords
+            .into_iter()
+            .filter(|pi| pi.is_valid())
+            .count()
+            .to_string()
+    }
+}
 #[cfg(test)]
 mod tests {
-    use crate::core::*;
-
     use super::*;
 
     #[test]
     fn test() {
-        let part = Part::new(2, PartKind::Two, create_input, process_input);
+        let part = PartTwo {};
         assert!(part.test_sample().is_ok());
         assert!(part.test_puzzle().is_ok());
-    }    
+    }
 }

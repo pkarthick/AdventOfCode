@@ -1,13 +1,14 @@
+use core::*;
+
 struct PasswordInfo {
     min: usize,
     max: usize,
     ch: char,
-    password: String
+    password: String,
 }
 
-fn create_input(s: String) -> Vec<PasswordInfo> {
-
-    s.split('\n').map(|s| {
+impl PasswordInfo {
+    fn new(s: &str) -> Self {
         let v: Vec<&str> = s.trim().split(&['-', ' ', ':'][..]).collect();
         PasswordInfo {
             min: v[0].parse::<usize>().unwrap(),
@@ -15,27 +16,44 @@ fn create_input(s: String) -> Vec<PasswordInfo> {
             ch: v[2].chars().nth(0).unwrap(),
             password: v[4].into(),
         }
-    }).collect::<Vec<PasswordInfo>>()
+    }
 
+    fn is_valid(&self) -> bool {
+        let times = &self.password[..].matches(self.ch).collect::<Vec<_>>().len();
+        *times >= self.min && *times <= self.max
+    }
 }
 
-fn process_input(passwords: Vec<PasswordInfo>) -> Result<usize, String> {
-    let count = passwords.into_iter().filter(|pi| {
-        let times = &pi.password[..].matches(pi.ch).collect::<Vec<_>>().len();
-        *times >= pi.min && *times <= pi.max
-    }).count();
-    Ok(count)
+struct PartOne {}
+
+impl PartSpec for PartOne {
+    fn get_day(&self) -> i32 {
+        2
+    }
+
+    fn get_part_kind(&self) -> PartKind {
+        PartKind::One
+    }
+}
+
+impl TestPart for PartOne {
+    fn process_input(&self, input: String) -> String {
+        let passwords: Vec<PasswordInfo> = input.split('\n').map(PasswordInfo::new).collect();
+        passwords
+            .into_iter()
+            .filter(|pi| pi.is_valid())
+            .count()
+            .to_string()
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::core::*;
-
     use super::*;
 
     #[test]
     fn test() {
-        let part = Part::new(2, PartKind::One, create_input, process_input);
+        let part = PartOne {};
         assert!(part.test_sample().is_ok());
         assert!(part.test_puzzle().is_ok());
     }

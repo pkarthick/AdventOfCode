@@ -1,9 +1,5 @@
 use std::cmp::Ordering;
-
-struct Input {
-    vec: Vec<i32>,
-    total: i32,
-}
+use core::*;
 
 fn pair(v: &[i32], total: i32) -> Option<i32> {
     let mut s = 0;
@@ -18,49 +14,51 @@ fn pair(v: &[i32], total: i32) -> Option<i32> {
     }
 
     None
-
 }
 
-fn triple(input: Input) -> Option<i32> {
-    let v = &input.vec[..];
-    let total = input.total;
-
+fn triple(v: Vec<i32>) -> i32 {
     for (i, x) in v.iter().enumerate() {
-        if let Some(prod) = pair(&v[i + 1..], total - x) {
-            return Some(prod * *x);
+        if let Some(prod) = pair(&v[i + 1..], 2020 - x) {
+            return prod * *x;
         }
     }
 
-    None
+    panic!("Unexpected scenario!")
 }
 
+struct PartTwo {}
 
-fn create_input(s: String) -> Input {
-    Input {
-        vec: crate::core::to_vec(&s, Some(true)),
-        total: 2020,
+impl PartSpec for PartTwo {
+    fn get_day(&self) -> i32 {
+        1
+    }
+
+    fn get_part_kind(&self) -> PartKind {
+        PartKind::Two
     }
 }
 
-fn process_input(input: Input) -> Result<i32, String> {
-    if let Some(r) = triple(input) {
-        Ok(r)
-    } else {
-        Err("Failed!".into())
+impl TestPart for PartTwo {
+    fn process_input(&self, input: String) -> String {
+        let mut vec = input
+            .split('\n')
+            .map(|s| s.parse().unwrap())
+            .collect::<Vec<i32>>();
+
+        vec.sort();
+
+        triple(vec).to_string()
     }
 }
-
 
 #[cfg(test)]
 mod tests {
-    use crate::core::*;
-
     use super::*;
-
+    
     #[test]
     fn test() {
-        let part = Part::new(1, PartKind::Two, create_input, process_input);
+        let part = PartTwo{};
         assert!(part.test_sample().is_ok());
         assert!(part.test_puzzle().is_ok());
-    }    
+    }
 }
