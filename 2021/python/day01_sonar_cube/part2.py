@@ -1,18 +1,29 @@
+import os
+
+TEST_DATA_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)).rsplit('/python/', 1)[0], 'testdata')
+
 day = 1
 part = 2
 
-def getInput(kind):
-  with open(f'../testdata/{day}/{kind}_{part}.in') as fo:
+def get_input(kind):
+
+  file_path = f'{TEST_DATA_DIR}/{day}/{kind}_{part}.in'
+
+  with open(file_path) as fo:
     return fo.read()
 
-def getOutput(kind):
-  with open(f'../testdata/{day}/{kind}_{part}.out') as fo:
+def get_output(kind):
+
+  file_path = f'{TEST_DATA_DIR}/{day}/{kind}_{part}.out'
+
+  with open(file_path) as fo:
     return fo.read()
+
 
 kind = "sample"
 
-input = getInput(kind)
-expected = int(getOutput(kind))
+input = get_input(kind)
+expected = int(get_output(kind))
 
 lines = input.splitlines()
 
@@ -33,8 +44,8 @@ assert(actual == expected)
 
 kind = "puzzle"
 
-input = getInput(kind)
-expected = int(getOutput(kind))
+input = get_input(kind)
+expected = int(get_output(kind))
 
 lines = input.splitlines()
 
