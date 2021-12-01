@@ -67,7 +67,7 @@ pub trait PartSpec {
 
 pub trait TestPart : PartSpec {
 
-    fn test(&self, input_kind: InputKind) -> Result<(), String> {
+    fn test(&self, input_kind: InputKind) -> Result<(String, String), String> {
         
         let day: i32 = self.get_day();
 
@@ -80,17 +80,17 @@ pub trait TestPart : PartSpec {
         let expected = get_output(&part_kind, day, &input_kind);
 
         if actual == expected {
-            Ok(())
+            Ok((actual, expected))
         } else {
             Err(format!("Day {} {} Failed: Expected {} but got {}", day, part_kind, expected, actual))
         }
     }
 
-    fn test_sample(&self) -> Result<(), String> {
+    fn test_sample(&self) -> Result<(String, String), String> {
         self.test(InputKind::Sample)
     }
 
-    fn test_puzzle(&self) -> Result<(), String> {
+    fn test_puzzle(&self) -> Result<(String, String), String> {
         self.test(InputKind::Puzzle)
     }
 
