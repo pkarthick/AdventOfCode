@@ -1,4 +1,4 @@
-# Advent Of Code (2021) using Rust, Haskell, F# and Python
+# Advent Of Code 2021 - Rust / Haskell / F# / Python
 
 ---
 
