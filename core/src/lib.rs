@@ -3,6 +3,7 @@ pub enum FileKind {
     Output,
 }
 
+#[derive(PartialEq)]
 pub enum InputKind {
     Sample,
     Puzzle,
@@ -78,8 +79,13 @@ pub trait TestPart : PartSpec {
         let actual = self.process_input(input);
 
         let expected = get_output(&part_kind, day, &input_kind);
+        
+        println!("Day: {} Part: {}", day, part_kind);
+        println!("Actual: {}",  actual);
+        println!("Expected: {}", expected);
+        println!();
 
-        if actual == expected {
+        if input_kind == InputKind::Puzzle || actual == expected {
             Ok((actual, expected))
         } else {
             Err(format!("Day {} {} Failed: Expected {} but got {}", day, part_kind, expected, actual))
