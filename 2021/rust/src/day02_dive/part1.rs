@@ -14,16 +14,14 @@ impl PartSpec for PartOne {
 
 impl TestPart for PartOne {
     fn process_input(&self, input: String) -> String {
-        fn get_tuple(x: &str) -> (&str, i32) {
-            let v: Vec<&str> = x.split_ascii_whitespace().collect();
-            (&v[0], v[1].parse::<i32>().unwrap())
-        }
 
-        let dirs: Vec<(&str, i32)> = input.lines().map(get_tuple).collect();
-
-        let (depth, width) = dirs
-            .iter()
-            .fold((0, 0), |(depth, width), (dir, dis)| match *dir {
+        let (depth, width) = input
+            .lines()
+            .map(|x: &str| {
+                let mut v = x.split_whitespace();
+                (v.next().unwrap(), v.next().unwrap().parse::<i32>().unwrap())
+            })
+            .fold((0, 0), |(depth, width), (dir, dis)| match dir {
                 "forward" => (depth, width + dis),
                 "up" => (depth - dis, width),
                 "down" => (depth + dis, width),
