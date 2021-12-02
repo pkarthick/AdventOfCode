@@ -39,12 +39,11 @@ assert(actual == expected)
 kind = "puzzle"
 
 input = get_input(kind)
-expected = int(get_output(kind))
+
 lines = input.splitlines()
 actual = get_increase_count()
 
 print(f'{kind} output:')
 print(actual)
 
-assert(actual == expected)
   
