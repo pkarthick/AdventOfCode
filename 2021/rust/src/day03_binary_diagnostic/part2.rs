@@ -13,11 +13,11 @@ impl PartSpec for PartTwo {
 }
 
 fn partition_by_bit_position(
-    v: Vec<String>,
+    v: Vec<&str>,
     pos: usize,
     retainer: fn(usize, usize) -> bool,
 ) -> usize {
-    let (v1, v2): (Vec<String>, Vec<String>) = v
+    let (v1, v2): (Vec<&str>, Vec<&str>) = v
         .into_iter()
         .partition(|bits| bits.chars().nth(pos).unwrap() == '1');
 
@@ -37,11 +37,11 @@ fn partition_by_bit_position(
 
 impl TestPart for PartTwo {
     fn process_input(&self, input: String) -> String {
-        let lines: Vec<String> = input.lines().map(|x| x.to_string()).collect::<Vec<_>>();
-        let (v1, v2): (Vec<String>, Vec<String>) = lines
+        let lines: Vec<&str> = input.lines().collect::<Vec<_>>();
+        let (v1, v2): (Vec<&str>, Vec<&str>) = lines
             .into_iter()
             .partition(|bits| bits.chars().nth(0).unwrap() == '1');
-        let (o2, co2): (Vec<String>, Vec<String>) = if v1.len() >= v2.len() {
+        let (o2, co2) = if v1.len() >= v2.len() {
             (v1, v2)
         } else {
             (v2, v1)
