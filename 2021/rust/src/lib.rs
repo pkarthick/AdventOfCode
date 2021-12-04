@@ -1,7 +1,7 @@
 mod day01_sonar_cube;
 mod day02_dive;
 mod day03_binary_diagnostic;
-// mod day4;
+mod day04_giant_squid;
 // mod day5;
 // mod day6;
 // mod day7;
