@@ -10,7 +10,7 @@
 
 Day 1:
 * Kotlin: Builtin zipWithNext is handy. Rich iterator functionality.
-* Python: zip works multiple iterators. zip3 is not required.
+* Python: Has itertools pairwise. zip works multiple iterators. zip3 is not required.
 
 Day 2:
 * F#'s Active Patterns
