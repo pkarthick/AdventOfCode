@@ -3,7 +3,7 @@
 | Day | Rust      | Python    | Crystal  | Haskell  | F#       | Kotlin    | TypeScript    | 
 |-----|-----------|-----------|----------|----------|----------|-----------|---------------|
 | 1   | &#10003;  | &#10003;  | &#10003; | &#10003; | &#10003; | &#10003;  |               |
-| 2   | &#10003;  | &#10003;  |          | &#10003; | &#10003; | &#10003;  |               |
+| 2   | &#10003;  | &#10003;  | &#10003; | &#10003; | &#10003; | &#10003;  |               |
 | 3   | &#10003;  | &#10003;  |          | &#10003; |          |           |               |
 | 4   | &#10003;  | &#10003;  |          |          |          |           |               |
 | 5   | &#10003;  | &#10003;  |          |          |          |           |               |
@@ -15,7 +15,8 @@ Day 1:
 
 Day 2:
 * F#'s Active Patterns
-* Python's Structural Pattern Matching.
+* Python's Structural Pattern Matching
+* Crystal lacks tuple destructuring in the block arguments, match statement does not match string literals, variables can't be used in case  
 
 Day 3:
 * Haskell operators are inbuilt and first class. Rust requires user defined lambda.
