@@ -23,7 +23,5 @@ puts Day.new(2, 2).execute { |input|
       end
       {d, w, a}
     }
-  x = (depth * width).to_s
-  puts x
-  x
+  (depth * width).to_s
 }
