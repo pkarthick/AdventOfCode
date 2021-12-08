@@ -5,7 +5,7 @@ mod day04_giant_squid;
 mod day05_hypothermal_venture;
 mod day06_lanternfish;
 mod day07_the_treachery_of_whales;
-// mod day08;
+mod day08_seven_segment_search;
 // mod day09;
 // mod day10;
 // mod day11;
