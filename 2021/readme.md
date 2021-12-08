@@ -9,6 +9,7 @@
 | 5   | &#10003;  | &#10003;  | &#10003; |          |          |           |               |
 | 6   | &#10003;  | &#10003;  |          |          |          |           |               |
 | 7   | &#10003;  | &#10003;  | &#10003; |          |          |           |               |
+| 8   |           | &#10003;  |          |          |          |           |               |
 
 Day 1:
 * Kotlin: Builtin zipWithNext is handy. Rich iterator functionality.
@@ -37,7 +38,3 @@ Day 6:
 Day 7:
 * Crystal, Python and Rust use same algorithm but Crystal seems to be succinct solution of all due to its syntax brevity. Python is readable but reduce from functools, accumulate from itertools and operator.add from operator is too many imports to use the built-in functionality from the ceremonial perspective Modularity is definitely good from Python's own architecture stand point but now I was merely looking at it as a consumer, especially when comparing the languages. 
 * Rust uses usize for indexing but Rust's abs_diff for subtracting for two usizes is still an experimental version. Absolute of two usize values cannot be negative. This is the strength (ensuring right behavior) and the weakness (by compromising the developer productivity) of Rust's type system. abs_diff is being worked on in itself makes a point.
-
-
-
-
