@@ -4,11 +4,9 @@ def get_basin_coordinates(rows : Array(Array(Int32)), rows_count : Int32, cols_c
   r, c = rc
 
   [{r, c + 1}, {r, c - 1}, {r + 1, c}, {r - 1, c}]
-    .each { |rc1|
-      r1, c1 = rc1
+    .each { |(r1,c1)|
       if r1 >= 0 && r1 < rows_count && c1 >= 0 && c1 < cols_count && rows[r1][c1] != 9 && rows[r1][c1] > rows[r][c]
-        coordinates << rc1
-        get_basin_coordinates(rows, rows_count, cols_count, rc1, coordinates)
+        get_basin_coordinates(rows, rows_count, cols_count, {r1, c1}, coordinates << {r1, c1})
       end
     }
 
@@ -19,8 +17,7 @@ def get_low_points(rows : Array(Array(Int32)), rows_count : Int32, cols_count : 
   (0..rows_count - 1).flat_map { |r|
     (0..cols_count - 1).select { |c|
       [{r, c + 1}, {r, c - 1}, {r + 1, c}, {r - 1, c}]
-        .all? { |rc|
-          r1, c1 = rc
+        .all? { |(r1, c1)|
           if r1 >= 0 && r1 < rows_count && c1 >= 0 && c1 < cols_count
             rows[r][c] < rows[r1][c1]
           else
