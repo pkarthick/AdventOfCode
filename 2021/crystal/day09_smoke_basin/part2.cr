@@ -31,7 +31,7 @@ end
 puts Day.new(9, 2).execute { |input|
   rows = input
     .lines
-    .map { |s| (0..s.size - 1).map { |c| s[c].to_i }.to_a }
+    .map(&.chars.map(&.to_i))
     .to_a
 
   rows_count = rows.size
@@ -39,7 +39,7 @@ puts Day.new(9, 2).execute { |input|
 
   low_points = get_low_points(rows, rows_count, cols_count).to_set
 
-  basin_counts = low_points.map { |rc| get_basin_coordinates(rows, rows_count, cols_count, rc, [rc].to_set).size }
+  basin_counts = low_points.map { |rc| get_basin_coordinates(rows, rows_count, cols_count, rc, Set.new [rc]).size }
 
   basin_counts.sort { |a, b| b <=> a }.each_slice(3).first.product.to_s
 }

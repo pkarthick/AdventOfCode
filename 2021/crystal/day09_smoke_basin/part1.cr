@@ -3,7 +3,7 @@ require "../day.cr"
 puts Day.new(9, 1).execute { |input|
   rows = input
     .lines
-    .map { |s| (0..s.size - 1).map { |c| s[c].to_i }.to_a }
+    .map(&.chars.map(&.to_i))
     .to_a
 
   rows_count = rows.size
