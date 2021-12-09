@@ -5,12 +5,10 @@ puts Day.new(2, 2).execute { |input|
   depth, width, _ = input
     .lines
     .map { |s|
-      xs = s.split(' ')
-      {xs[0], xs[1].to_i}
+      dir, _, dis = s.partition(' ')
+      {dir, dis.to_i}
     }
-    .reduce ({0, 0, 0}) { |  acc, dir_dis |
-      dir, dis = dir_dis
-      d, w, a = acc
+    .reduce ({0, 0, 0}) { |  (d,w,a), (dir,dis) |
       if dir == "forward"
         w += dis
         d += a * dis

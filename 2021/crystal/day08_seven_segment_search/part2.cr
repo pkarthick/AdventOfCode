@@ -9,7 +9,7 @@ puts Day.new(8, 2).execute { |input|
         .split(' ')
         .sort_by!(&.size)
         .map { |seg|
-          (0..seg.size - 1).map { |c| seg[c] }.sort!.to_set
+        (0...seg.size).map { |c| seg[c] }.sort!.to_set
         }.to_a
 
       one, seven, four = input_segments[0..2]
@@ -56,7 +56,7 @@ puts Day.new(8, 2).execute { |input|
       frags[1]
         .split(' ')
         .map_with_index { |seg, i|
-          {i, (0..seg.size - 1).map { |c| seg[c] }.sort!.to_set}
+        {i, (0...seg.size).map { |c| seg[c] }.sort!.to_set}
         }
         .sum { |(powi, out_seg)|
           if digit = all_sets.index { |digit_set| out_seg == digit_set }

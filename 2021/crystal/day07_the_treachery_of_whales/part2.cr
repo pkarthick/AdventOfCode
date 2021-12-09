@@ -10,9 +10,8 @@ puts Day.new(7, 2).execute { |input|
 
   (0..max)
     .map { |x|
-      keys.reduce (0) { |a, y|
-        d = (x - y).abs
-        a + costs[d]
+      keys.sum { |y|
+        costs[(x - y).abs]
       }
     }
     .min

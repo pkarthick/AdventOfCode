@@ -6,12 +6,7 @@ puts Day.new(7, 1).execute { |input|
     .map(&.to_i)
 
   (0..keys.max)
-    .map { |x|
-      keys.reduce (0) { |a, y|
-        d = (x - y).abs
-        a + d
-      }
-    }
+    .map { |x| keys.sum(&.-(x).abs) }
     .min
     .to_s
 }

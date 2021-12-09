@@ -6,7 +6,7 @@ puts Day.new(1, 2).execute { |input|
     .lines
     .map(&.to_i)
     .each_cons(3)
-    .map { |a| a.sum }
+    .map(&.sum)
     .cons_pair
     .count { |x, y| x < y }.to_s
 

@@ -37,8 +37,8 @@ struct Line
 
   def Line.from(l : String)
     pts = l.split(" -> ").map(&.split(',').map(&.to_i))
-    sx, sy = pts[0][0].to_i, pts[0][1].to_i
-    fx, fy = pts[1][0].to_i, pts[1][1].to_i
+    sx, sy = pts[0][0], pts[0][1]
+    fx, fy = pts[1][0], pts[1][1]
     Line.new({sx, sy}, {fx, fy})
   end
 end
