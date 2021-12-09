@@ -10,6 +10,7 @@
 | 6   | &#10003;  | &#10003;  | &#10003; |          |          |           |               |
 | 7   | &#10003;  | &#10003;  | &#10003; |          |          |           |               |
 | 8   | &#10003;  | &#10003;  |          |          |          |           |               |
+| 9   |           |           | &#10003; |          |          |           |               |
 
 Day 1:
 * Kotlin: Builtin zipWithNext is handy. Rich iterator functionality.
