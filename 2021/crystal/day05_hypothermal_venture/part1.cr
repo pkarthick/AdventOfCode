@@ -24,7 +24,7 @@ struct Line
     pts = [] of Tuple(Int32, Int32)
 
     if sx == fx || sy == fy
-      while sx != fx || sy != fy
+      until sx == fx && sy == fy
         pts << {sx, sy}
         sx += xd
         sy += yd
