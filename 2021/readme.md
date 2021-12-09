@@ -1,6 +1,6 @@
 # Advent Of Code (2021) 
 
-| Day | Rust      | Python    | Crystal  | Haskell  | F#       | Kotlin    | TypeScript    | 
+| Day | Crystal   | Rust      | Python   | Haskell  | F#       | Kotlin    | TypeScript    | 
 |-----|-----------|-----------|----------|----------|----------|-----------|---------------|
 | 1   | &#10003;  | &#10003;  | &#10003; | &#10003; | &#10003; | &#10003;  |               |
 | 2   | &#10003;  | &#10003;  | &#10003; | &#10003; | &#10003; | &#10003;  |               |
@@ -9,8 +9,8 @@
 | 5   | &#10003;  | &#10003;  | &#10003; |          |          |           |               |
 | 6   | &#10003;  | &#10003;  | &#10003; |          |          |           |               |
 | 7   | &#10003;  | &#10003;  | &#10003; |          |          |           |               |
-| 8   | &#10003;  | &#10003;  |          |          |          |           |               |
-| 9   |           |           | &#10003; |          |          |           |               |
+| 8   | &#10003;  | &#10003;  | &#10003; |          |          |           |               |
+| 9   | &#10003;  |           |          |          |          |           |               |
 
 Day 1:
 * Kotlin: Builtin zipWithNext is handy. Rich iterator functionality.
@@ -31,7 +31,7 @@ Day 4:
 
 Day 5:
 * Python's syntax can be verbose relatively compared to F#'s succinct code or Haskell's point free coding but nevertheless it is very productive. 
-* Rust code took a while. As an after thought, I wish I first started this day's code with Python before Rust. Sometimes good functions like fold deceives developers and takes them in a wrong direction. I wish I could make use of a map function's output in Rust like how I would in C#.
+* Rust code took a while. As an after thought, I wish I first started this day's code with Python before Rust. Sometimes good functions like fold deceives me. It took me in a wrong direction today. I wish I could make use of a map function's output in Rust like how I would in C#.
 
 Day 6:
 * Rust HashMap's entry and and_modify expresses the intent well
@@ -43,4 +43,7 @@ Day 7:
 Day 8:
 * Python syntax was tedious to work with after the nested iterator calls go 4 level deep. Breaking down of calls and temporary assignments were required. Rust's chaining of calls were much better to work with
 * Rust's life time hinders productivity on fold calls with HashMaps as initializers
+* Crystal was much better to work with sets than Rust. It is not just sets, but in general, Rust's ownership and lifetime gets in the way of writing code and slows down
 
+Day 9:
+* Crystal seems like a productive language. It will my language of choice for the rest of the AOC 2021 unless there is a compelling feature from other language. Crystal's type system is flexible and prevents nil errors at compile time.
