@@ -12,6 +12,7 @@
 |  8  | &#10003;  | &#10003;  | &#10003; |          |          |           |               |
 |  9  | &#10003;  |           |          |          |          |           |               |
 | 10  | &#10003;  |           |          |          |          |           |               |
+| 11  | &#10003;  |           |          |          |          |           |               |
 
 Further details about the languages comparison is [here](https://github.com/pkarthick/AdventOfCode/tree/master/2021)
 
