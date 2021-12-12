@@ -7,7 +7,11 @@ class Day
 
   def read_input(io_kind : String)
     input_path = Path.new(TEST_DATA_DIR, "#{@day}/#{io_kind}_#{@part}.in")
-    File.read(input_path)
+    if File.exists?(input_path)
+    	File.read(input_path)
+    else
+    	""
+    end
   end
 
   def read_output(io_kind : String)
@@ -28,10 +32,10 @@ class Day
     end
 
     input = read_input "puzzle"
-    
-    actual = yield input
-
-    puts "Puzzle output: #{actual}"
+    unless input.empty?
+    	actual = yield input
+    	puts "Puzzle output: #{actual}"
+    end
 
   end
 end
