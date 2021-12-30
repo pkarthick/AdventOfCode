@@ -40,125 +40,109 @@ impl TestPart for PartTwo {
             })
             .collect();
 
-        let mut map1: HashMap<(char, char), Vec<HashMap<char, i32>>> = HashMap::new();
+        let times = 4;
 
-        get_count(rules, &mut map1);
+        let mut cycles: HashMap<&(char, char), Vec<Vec<(char, char)>>> = HashMap::new();
 
-        // let v: Vec<char> = template.chars().into_iter().collect();
-
-        // let mut cc: HashMap<char, i32> = HashMap::new();
-
-        // for (f, s) in v.iter().zip(v.iter().skip(1)) {
-        //     if let Some(hm) = map1.get(&(*f, *s)) {
-        //         for (k, v) in hm {
-        //             *cc.entry(*k).or_insert(0) += v;
-        //         }
-        //     } else {
-        //         panic!("Unexpected pair!");
-        //     }
-        // }
-
-        // print!("{:?}", 'B');
-
-        // let c = cc.get(&'N');
-
-        let result = extend_polymer_times(20, template, &mut map);
-
-        // println!("{:?}", v);
-
-        let mut hm: HashMap<char, i32> = HashMap::new();
-
-        for c in result.chars() {
-            let entry = hm.entry(c).or_insert(0);
-            *entry += 1;
+        for key in rules.keys().into_iter() {
+            cycles.insert(key, extend_times(key, &rules, times));
         }
 
-        let min = hm.values().min().unwrap();
-        let max = hm.values().max().unwrap();
+        let chars: Vec<char> = template.chars().into_iter().collect();
+
+        let mut count_map: HashMap<char, usize> = HashMap::new();
+
+        for (f, s) in chars.iter().zip(chars.iter().skip(1)) {
+            if let Some(hm) = cycles.get(&(*f, *s)) {
+                println!("{}", "hm");
+            } else {
+                panic!("Not found!");
+            }
+        }
+
+        let min = count_map.values().min().unwrap();
+        let max = count_map.values().max().unwrap();
 
         (max - min).to_string()
     }
 }
 
-fn get_count(
-    rules: HashMap<(char, char), char>,
-    map: &mut HashMap<(char, char), Vec<HashMap<char, i32>>>,
-) {
-    for (f, s) in rules.keys() {
+fn extend_times(
+    (f, s): &(char, char),
+    rules: &HashMap<(char, char), char>,
+    times: usize,
+) -> Vec<Vec<(char, char)>> {
+    let mut f1 = *f;
+    let mut res: String = String::new();
+    let mut pairs_list: Vec<Vec<(char, char)>> = vec![vec![(*f, *s)]];
 
-        let mut v: Vec<char> = vec![*f, *s];
+    (0..times).fold(pairs_list, |mut pairs_list, _| {
+        let mut pairs: Vec<(char, char)> = vec![];
+        let mut last = s;
 
-        let mut vhm: Vec<HashMap<char, i32>> = vec![];
-                
-        for _ in 0 .. 40 {
-
-            let vlen = v.len();
-
-            for i in 0 .. vlen-1 {
-                let (f,s) = (v[i*2], v[i*2+1]);
-                if let Some(c) = rules.get(&(f, s)) {
-                    v.insert(i*2+1, *c);
-                    // v1.insert(i*2+2, s);
-                } else {
-                    panic!("!!!");
-                }
-            }
-
-            let mut hm: HashMap<char, i32> = HashMap::new();
-
-            for c in v.iter() {
-                let entry = hm.entry(*c).or_insert(0);
-                *entry += 1;
-            }
-
-            vhm.push(hm);
-    
-         }
-
-         map.insert((*f, *s), vhm);
-
-        println!("{:?}", v.len());
-    }
-}
-
-fn extend_polymer_times(times: usize, template: &str, map: &mut HashMap<String, String>) -> String {
-    (0..times).fold(template.to_string(), |template, i| {
-        println!("{:?}", i);
-
-        extend_polymer(template, map)
-    })
-}
-
-fn extend_polymer(template: String, map: &mut HashMap<String, String>) -> String {
-    let mut result = String::new();
-    let chars: Vec<char> = template.chars().into_iter().collect();
-    for start in 2..=template.len() {
-        let sub = template[0..start].to_string();
-
-        if map.contains_key(&sub) {
-            let s = map.get(&sub).unwrap().clone();
-            // println!("Found substring {:?}", s);
-            result.replace_range(.., &s);
-        } else {
-            if sub.len() == 2 {
-                map.insert(sub.clone(), sub.clone());
-            } else {
-                let sub1 = sub[sub.len() - 2..sub.len()].to_string();
-
-                if let Some(s) = map.get(&sub1) {
-                    result.push_str(&s);
-                } else {
-                    result.push_str(&sub1);
-                    map.insert(sub1.clone(), sub1.clone());
-                }
+        for (f, s) in pairs_list.last().unwrap().iter() {
+            
+            if let Some(ch) = rules.get(&(f1, *s)) {
+                pairs.push((*f, *ch));
+                // pairs.push((*ch, *s));
+                last = ch;
             }
         }
 
-        map.insert(sub.to_string(), result.clone());
+        pairs.push((*last, *s));
+        
+        pairs_list.push(pairs);
+
+        pairs_list
+    })
+
+    // res.push(*f);
+
+    // let mut count = 0_usize;
+
+    // while let Some(ch) = rules.get(&(f1, *s)) {
+    //     res.insert(1, *ch);
+    //     v.push(res.clone());
+
+    //     f1 = *ch;
+
+    //     if count == times - 1 {
+    //         // res.entry(*s).and_modify(|v| *v += 1).or_insert(1);
+    //         break;
+    //     }
+
+    //     count += 1;
+    // }
+
+    // v
+}
+
+fn extend_times1(
+    (f, s): &(char, char),
+    rules: &HashMap<(char, char), char>,
+    times: usize,
+) -> HashMap<char, usize> {
+    let mut s1 = *s;
+    let mut res: HashMap<char, usize> = HashMap::new();
+
+    res.insert(*f, 1);
+
+    let mut count = 0_usize;
+
+    while let Some(c) = rules.get(&(*f, s1)) {
+        res.entry(*c).and_modify(|v| *v += 1).or_insert(1);
+
+        s1 = *c;
+
+        if count == times - 1 {
+            // res.entry(*s).and_modify(|v| *v += 1).or_insert(1);
+            break;
+        }
+
+        count += 1;
     }
-    map.insert(template, result.clone());
-    result.push(*chars.iter().last().unwrap());
-    result.clone()
+
+    res
 }
 
 #[cfg(test)]
