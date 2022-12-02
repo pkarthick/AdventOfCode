@@ -49,7 +49,15 @@
 | 14  |           | &#10003; (Part 1)  |          |          |          |           |    &#10003;           |
 | 15  |           | &#10003;  |          |          |          |           |               |
 | 16  |           | &#10003;  |          |          |          |           |               |
-
+| 17  |   |   |  |
+| 18  |   |   |  |
+| 19  |   |   |  |
+| 20  |   | &#10003;  |  |
+| 21  |   | &#10003; (Part 1)  |  |
+| 22  |   | &#10003; (Part 1)  |  |
+| 23  |   | &#10003;  |  |
+| 24  |   |   |  |
+| 25  |   | &#10003; (Part 1)  |  |
 Further details about the languages comparison is [here](https://github.com/pkarthick/AdventOfCode/tree/master/2021#readme)
 
 ---
