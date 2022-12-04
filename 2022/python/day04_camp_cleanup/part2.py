@@ -3,14 +3,14 @@ import sys
 count = 0
 
 for line in sys.stdin.readlines():
-    l = line.strip().split(",")
-    first = l[0].split("-")
-    second = l[1].split("-")
+    [f, s] = line.strip().split(",")
+    [f1, f2] = list(map(int, f.split("-")))
+    [s1, s2] = list(map(int, s.split("-")))
 
-    firstSet = set(x for x in range(int(first[0]), int(first[1]) + 1))
-    secondSet = set(x for x in range(int(second[0]), int(second[1]) + 1))
+    set1 = set(range(f1, f2 + 1))
+    set2 = set(range(s1, s2 + 1))
 
-    if len(firstSet.intersection(secondSet)) > 0:
+    if not set1.isdisjoint(set2):
         count += 1
 
 print(count)
