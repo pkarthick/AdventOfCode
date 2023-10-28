@@ -1,37 +1,35 @@
 import sys
 
+groups = []
+
 lowerOffset = 97 - 1
 upperOffset = 65 - 1 - 26
 
 
-def getOffset(common):
-    c = ord(list(common)[0])
-    return c - (lowerOffset if c >= 97 else upperOffset)
+class Group:
+    def __init__(self, items, count):
+        self.items = items
+        self.count = count
 
+    def update(self, items) -> bool:
 
-groups = []
-priorities = 0
+        if len(self.items.intersection(items)) == 0 or self.count == 3:
+            return False
+
+        self.items = self.items.intersection(items)
+        self.count += 1
+        return True
+
+    def getBadge(self) -> int:
+        c = ord(list(self.items)[0])
+        return c - (lowerOffset if c >= 97 else upperOffset)
+
 
 for line in sys.stdin.readlines():
-    setNew = set(line.strip())
-    for group in groups:
-        groupLen = len(group)
-        if groupLen == 3:
-            continue
-        else:
-            common = group[0].intersection(setNew)
-            if len(common) > 0:
-                if groupLen == 1:
-                    group.append(setNew)
-                    break
-                elif groupLen == 2:
-                    common = common.intersection(group[1])
-                    if len(common) == 1:
-                        group.append(setNew)
-                        priorities += getOffset(common)
-                        break
+    items = set(line.strip())
 
-    else:
-        groups.append([set(line)])
+    if not any([group.update(items) for group in groups]):
+        groups.append(Group(items, 1))
 
-print(priorities)
+
+print(sum([group.getBadge() for group in groups]))

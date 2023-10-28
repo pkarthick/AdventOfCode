@@ -16,23 +16,30 @@ CrZsJsPPZsGzwwsLwLmpwMDw"""
 
 Group: { common: Set U8, count: U8 }
 
+updateGroup: Group, Set U8 -> Result Group Group
+updateGroup = \{common, count}, set ->
+    when count is
+        3 -> Err {common, count}
+        _ -> 
+            common1 = Set.intersection common set
+            if Set.intersection common set == Set.empty then
+                Err {common, count}
+            else
+                Ok {common: common1, count: count+1}
+
 addToGroup : List Group, Set U8 -> List Group
 addToGroup = \groups, set ->
     
     if List.isEmpty groups then
        List.append groups {common:set, count:1}
     else
-        incomplete = groups |> List.keepIf \{count} -> count < 3
-        overlaps = incomplete |> List.map \{common, count} -> 
-            overlap = Set.intersection common set
-            if overlap == Set.empty then
-                {common, count}
-            else
-                {common:overlap, count: count+1}
-        if List.isEmpty overlaps then
-            List.append groups {common:set, count:1}
+        
+        newGroups = List.map groups \group -> updateGroup group set
+                
+        if List.any newGroups List.isOk then
+            newGroups
         else
-            overlaps
+            List.append groups {common:set, count:1}
     
 main = 
     sample
