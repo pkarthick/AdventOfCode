@@ -4,21 +4,19 @@ type Shape = Vec<Vec<u8>>;
 enum Direction {
     Left,
     Right,
-    Down,
 }
 
 const ROCKS: usize = 2023;
 
 const MAX_WIDTH: usize = 7;
 
-const MAX_HEIGHT: usize = ROCKS * 4 + 3;
+const MAX_HEIGHT: usize = ROCKS * 2 + 3;
 
 #[derive(Clone)]
 struct FallingShape {
     shape: Shape,
     row: usize,
     col: usize,
-    initial_row: usize,
 }
 
 struct Chamber {
@@ -49,7 +47,6 @@ impl Chamber {
             dirs,
             floater: FallingShape {
                 shape: vec![vec![1, 1, 1, 1]],
-                initial_row: MAX_HEIGHT - 1 - 3,
                 row: MAX_HEIGHT - 1 - 3,
                 col: 2,
             },
@@ -58,7 +55,7 @@ impl Chamber {
     }
 
     fn has_more_shapes(&mut self) -> bool {
-        self.shape_index < ROCKS
+        self.shape_index < ROCKS - 2
     }
 
     fn get_next_shape(&mut self) -> bool {
@@ -68,7 +65,6 @@ impl Chamber {
 
         self.floater = FallingShape {
             shape,
-            initial_row: self.max_height - row_count - 3,
             row: self.max_height - row_count - 3,
             col: 2,
         };
@@ -90,165 +86,87 @@ impl Chamber {
     fn move_shape(&mut self, dir: &Direction) {
         match dir {
             Direction::Left => {
-                if self.floater.col > 0 && self.check(dir) {
+                if self.floater.col > 0 {
                     self.floater.col -= 1;
+                    if !self.check() {
+                        self.floater.col += 1;
+                    }
                 }
             }
             Direction::Right => {
-                if self.check(dir) {
+                if self.floater.col + self.floater.shape[0].len() < MAX_WIDTH {
                     self.floater.col += 1;
-                }
-            }
-            Direction::Down => {
-                if self.check(dir) {
-                    self.floater.row += 1;
-                } else {
-                    self.patch_floater();
-                    self.get_next_shape();
+                    if !self.check() {
+                        self.floater.col -= 1;
+                    }
                 }
             }
         }
     }
 
     fn process(&mut self) {
-        while self.has_more_shapes() {
+        loop {
             let dir = self.get_next_direction();
             self.move_shape(&dir);
+            self.floater.row += 1;
+            if !self.check() {
+                self.floater.row -= 1;
+                self.patch_floater();
+                if self.has_more_shapes() {
+                    self.get_next_shape();
+                } else {
+                    break;
+                }
+            }
         }
     }
 
     fn patch_floater(&mut self) {
         for (r, row) in self.floater.shape.iter().enumerate() {
             for (c, cell) in row.iter().enumerate() {
-                self.spaces[self.floater.row + r][self.floater.col + c] = *cell;
+                if *cell == 1 {
+                    self.spaces[self.floater.row + r][self.floater.col + c] = *cell;
+                }
             }
         }
         if self.floater.row <= self.max_height {
             self.max_height = self.floater.row;
-            println!(
-                "{} {} {} {} {}",
-                self.shape_index % 5,
-                self.shape_index + 1,
-                MAX_HEIGHT - self.max_height,
-                MAX_HEIGHT - self.max_height + 3 + self.floater.shape.len(),
-                MAX_HEIGHT - self.floater.initial_row,
-            );
-        } else {
-            println!(
-                "{} {} {} {} {} !",
-                self.shape_index % 5,
-                self.shape_index + 1,
-                MAX_HEIGHT - self.max_height,
-                MAX_HEIGHT - self.max_height + 3 + self.floater.shape.len(),
-                MAX_HEIGHT - self.floater.initial_row,
-            );
         }
     }
 
-    fn check(&mut self, dir: &Direction) -> bool {
-        match dir {
-            Direction::Left => {
-                if self.floater.col > 0 {
-                    for c in 0..self.floater.shape[0].len() {
-                        for (r, shape_row) in self.floater.shape.iter().enumerate() {
-                            if shape_row[c] == 1
-                                && self.spaces[self.floater.row + r][self.floater.col - 1 + c] == 1
-                            {
-                                return false;
-                            }
-                        }
+    fn check(&mut self) -> bool {
+        if self.floater.row + self.floater.shape.len() - 1 < MAX_HEIGHT {
+            for c in 0..self.floater.shape[0].len() {
+                for (r, shape_row) in self.floater.shape.iter().enumerate() {
+                    if shape_row[c] == 1
+                        && self.spaces[self.floater.row + r][self.floater.col + c] == 1
+                    {
+                        return false;
                     }
-                    return true;
-                } else {
-                    return false;
                 }
             }
-            Direction::Right => {
-                if self.floater.col + self.floater.shape[0].len() < MAX_WIDTH {
-                    for c in 0..self.floater.shape[0].len() {
-                        for (r, shape_row) in self.floater.shape.iter().enumerate() {
-                            if shape_row[shape_row.len() - c - 1] == 1
-                                && self.spaces[self.floater.row + r]
-                                    [self.floater.col + shape_row.len() - c]
-                                    == 1
-                            {
-                                return false;
-                            }
-                        }
-                    }
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-            Direction::Down => {
-                if self.floater.row + self.floater.shape.len() < MAX_HEIGHT {
-                    for (r, shape_row) in self.floater.shape.iter().rev().enumerate() {
-                        for (c, cell) in shape_row.iter().enumerate() {
-                            if *cell == 1
-                                && self.spaces[self.floater.row + self.floater.shape.len() - r]
-                                    [self.floater.col + c]
-                                    == 1
-                            {
-                                return false;
-                            }
-                        }
-                    }
-                    return true;
-                } else {
-                    return false;
-                }
-            }
+            return true;
         }
-
-        // if row + self.floater.shape.len() <= MAX_HEIGHT
-        //     && col + self.floater.shape[0].len() <= MAX_WIDTH
-        // {
-        //     for (r, shape_row) in self.floater.shape.iter().enumerate() {
-        //         for (c, _) in shape_row.iter().enumerate() {
-        //             if self.spaces[row + r][col + c] == 1 {
-        //                 return false;
-        //             }
-        //         }
-        //     }
-        //     true
-        // } else {
-        //     false
-        // }
+        return false;
     }
 }
 
 fn main() {
     let mut line = String::new();
     let _ = std::io::stdin().read_line(&mut line).unwrap();
-
-    if let Some(li) = line.strip_suffix('\n') {
-        line = String::from(li);
-    }
-
-    // let line = ">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>";
-
+    
     let dirs: Vec<Direction> = line
         .chars()
-        .flat_map(|c| {
+        .map(|c| {
             if c == '>' {
-                [Direction::Right, Direction::Down]
+                Direction::Right
             } else {
-                [Direction::Left, Direction::Down]
+                Direction::Left
             }
         })
         .collect();
 
     let mut chamber = Chamber::new(dirs);
     chamber.process();
-
-    // let mut result = 0_usize;
-
-    // for row in chamber.spaces[chamber.max_height..].iter() {
-    //     for cell in row {
-    //         result += (*cell) as usize;
-    //     }
-    // }
-
     println!("{:?}", MAX_HEIGHT - chamber.max_height);
 }
