@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿using System.Reflection.Metadata.Ecma335;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Solution;
 
@@ -6,27 +9,29 @@ enum ActivityKind { Move, Open };
 
 record Valve(string Name, int Pressure, string[] ConnectionNames, List<Valve> Connections)
 {
+
     public static Valve From(string line)
     {
-        var words = line.Trim().Split([' ', '=', ';', ',']).Where(w => !string.IsNullOrEmpty(w)).ToList();
-        return new Valve(words[1], Convert.ToInt32(words[5]), words.Skip(10).ToArray(), []);
+        char[] seperators = [' ', '=', ';', ','];
+        var words = line.Trim().Split(seperators, StringSplitOptions.RemoveEmptyEntries).ToList();
+        return words switch
+        {
+        [_, var name, _, _, _, var pressure, _, _, _, _, .. var connections] => new Valve(name, Convert.ToInt32(pressure), [.. connections], []),
+            _ => throw new Exception()
+        };
     }
 
     public bool Openable { get; } = Pressure > 0;
 
 }
 
-record Data(Dictionary<string, Valve> Valves)
-{
-    public int OpenableCount { get; init; } = Valves.Values.Where(v => v.Pressure > 0).Count();
-}
 
-record Activity(Data Data)
+record Activity(Valve Valve, int OpenableCount)
 {
 
     public Dictionary<string, Activity> Activities { get; init; } = [];
 
-    public Valve Valve { get; init; } = Data.Valves["AA"];
+    // public Valve Valve { get; init; } = Data.Valves["AA"];
 
     public int Minutes { get; init; } = 0;
 
@@ -36,9 +41,9 @@ record Activity(Data Data)
 
     public ActivityKind Kind { get; init; } = ActivityKind.Move;
 
-    public HashSet<string> OpenValves { get; init; } = [];
+    public List<string> OpenValves { get; init; } = [];
 
-    private string GetHash(HashSet<String> set)
+    private string GetHash(List<String> set)
     {
 
         StringBuilder sb = new();
@@ -52,9 +57,9 @@ record Activity(Data Data)
         return sb.ToString();
 
     }
-
     public int MaxPressure()
     {
+
         if (Minutes == 30)
         {
             return TotalPressureReleased;
@@ -67,26 +72,24 @@ record Activity(Data Data)
             if (!OpenValves.Contains(Valve.Name) && Valve.Openable)
             {
                 var openActivity = OpenActivity();
-                if (openActivity.OpenValves.Count == Data.OpenableCount)
+                if (openActivity.OpenValves.Count == OpenableCount)
                 {
                     return openActivity.TotalPressureReleased;
                 }
                 else
                 {
                     var key = GetHash(openActivity.OpenValves);
-                    if (!Activities.ContainsKey(key))
+                    if (Activities.ContainsKey(key))
                     {
-                        Activities.Add(key, openActivity);
-                        maxPressure = openActivity.MaxPressure();
-                    }
-                    else
-                    {
+
                         var cachedActivity = Activities[key];
                         if (cachedActivity.TotalPressureReleased > openActivity.TotalPressureReleased || (cachedActivity.TotalPressureReleased == openActivity.TotalPressureReleased && openActivity.Minutes >= cachedActivity.Minutes))
                             return cachedActivity.TotalPressureReleased;
-                        Activities[key] = openActivity;
-                        maxPressure = openActivity.MaxPressure();
+
                     }
+
+                    Activities[key] = openActivity;
+                    maxPressure = openActivity.MaxPressure();
                 }
             }
 
@@ -109,7 +112,6 @@ record Activity(Data Data)
 
     private bool InLoop(string connectedValveName)
     {
-
         var activity = this;
 
         while (activity != null)
@@ -144,8 +146,7 @@ record Activity(Data Data)
 
     private Activity OpenActivity()
     {
-
-        var isOpen = OpenValves.Select(x => x).ToHashSet();
+        var isOpen = OpenValves.ToList();
         isOpen.Add(Valve.Name);
 
         return this with
@@ -167,15 +168,15 @@ class Solution
         var start = DateTime.Now;
 
         var input = @"Valve AA has flow rate=0; tunnels lead to valves DD, II, BB
-        Valve BB has flow rate=13; tunnels lead to valves CC, AA
-        Valve CC has flow rate=2; tunnels lead to valves DD, BB
-        Valve DD has flow rate=20; tunnels lead to valves CC, AA, EE
-        Valve EE has flow rate=3; tunnels lead to valves FF, DD
-        Valve FF has flow rate=0; tunnels lead to valves EE, GG
-        Valve GG has flow rate=0; tunnels lead to valves FF, HH
-        Valve HH has flow rate=22; tunnel leads to valve GG
-        Valve II has flow rate=0; tunnels lead to valves AA, JJ
-        Valve JJ has flow rate=21; tunnel leads to valve II";
+Valve BB has flow rate=13; tunnels lead to valves CC, AA
+Valve CC has flow rate=2; tunnels lead to valves DD, BB
+Valve DD has flow rate=20; tunnels lead to valves CC, AA, EE
+Valve EE has flow rate=3; tunnels lead to valves FF, DD
+Valve FF has flow rate=0; tunnels lead to valves EE, GG
+Valve GG has flow rate=0; tunnels lead to valves FF, HH
+Valve HH has flow rate=22; tunnel leads to valve GG
+Valve II has flow rate=0; tunnels lead to valves AA, JJ
+Valve JJ has flow rate=21; tunnel leads to valve II";
 
         var input1 = @"Valve WT has flow rate=0; tunnels lead to valves BD, FQ
 Valve UG has flow rate=0; tunnels lead to valves FQ, YB
@@ -252,18 +253,14 @@ Valve FQ has flow rate=12; tunnels lead to valves QN, WT, UG, RQ, QM";
 
     private static int ComputeMaxPressure(string input)
     {
-        var valves = input.Split(['\r', '\n']).Where(l => !string.IsNullOrEmpty(l)).Select(Valve.From).ToDictionary(v => v.Name);
+        var valves = input.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Select(Valve.From).ToDictionary(v => v.Name);
 
         foreach (var valve in valves.Values)
         {
-            foreach (var name in valve.ConnectionNames)
-            {
-                valve.Connections.Add(valves[name]);
-            }
+            valve.Connections.AddRange(valve.ConnectionNames.Select(name => valves[name]));
         }
 
-        Data data = new(valves);
-        Activity activity = new(data);
+        Activity activity = new(valves["AA"], valves.Values.Where(v => v.Pressure > 0).Count());
         int Pressure = activity.MaxPressure();
         return Pressure;
     }

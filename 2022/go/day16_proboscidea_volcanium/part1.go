@@ -23,12 +23,14 @@ type Activity struct {
 	total_pressure_released int
 	openable_count          int
 	open_valves             []int
-	max_activities          map[string]*Activity
+	// max_activities          map[string]*Activity
 	pressure_to_be_released int
 	max_pressure            *int
 }
 
-func newActivity(valve *Valve, pressure_to_be_released int, openable_count int, max_activities map[string]*Activity, max_pressure *int) Activity {
+var max_activities map[string]*Activity = make(map[string]*Activity)
+
+func newActivity(valve *Valve, pressure_to_be_released int, openable_count int, max_pressure *int) Activity {
 	return Activity{
 		valve,
 		nil,
@@ -36,7 +38,7 @@ func newActivity(valve *Valve, pressure_to_be_released int, openable_count int, 
 		0,
 		openable_count,
 		[]int{},
-		max_activities,
+		// max_activities,
 		pressure_to_be_released,
 		max_pressure,
 	}
@@ -63,7 +65,7 @@ func (activity *Activity) moveTo(valve *Valve) int {
 		activity.total_pressure_released,
 		activity.openable_count,
 		slices.Clone(activity.open_valves),
-		activity.max_activities,
+		// activity.max_activities,
 		activity.pressure_to_be_released,
 		activity.max_pressure,
 	}
@@ -98,7 +100,7 @@ func (activity *Activity) openValve() int {
 		activity.total_pressure_released + (29-activity.minutes)*activity.valve.rate,
 		activity.openable_count,
 		open_valves,
-		activity.max_activities,
+		// activity.max_activities,
 		activity.pressure_to_be_released - activity.valve.rate,
 		activity.max_pressure,
 	}
@@ -113,19 +115,19 @@ func (activity *Activity) openValve() int {
 	}
 
 	key := create_key(open_valves)
-	previous_max_activity, exists := open_activity.max_activities[key]
+	previous_max_activity, exists := max_activities[key]
 
 	if exists {
 		if open_activity.total_pressure_released > previous_max_activity.total_pressure_released {
-			open_activity.max_activities[key] = open_activity
+			max_activities[key] = open_activity
 		} else if open_activity.total_pressure_released == previous_max_activity.total_pressure_released && open_activity.minutes < previous_max_activity.minutes {
-			open_activity.max_activities[key] = open_activity
+			max_activities[key] = open_activity
 		} else {
 			return 0
 		}
 
 	} else {
-		open_activity.max_activities[key] = open_activity
+		max_activities[key] = open_activity
 	}
 
 	if len(open_activity.open_valves) == open_activity.openable_count {
@@ -251,7 +253,7 @@ func main() {
 
 	max_pressure := 0
 
-	activity := newActivity(valve, pressure_to_be_released, openable_count, map[string]*Activity{}, &max_pressure)
+	activity := newActivity(valve, pressure_to_be_released, openable_count, &max_pressure)
 	pressure := activity.calculateReleasedPressure()
 
 	fmt.Println(pressure)
@@ -322,7 +324,7 @@ func main() {
 
 	openable_count1, valve1, pressure_to_be_released1 := parseInput(input1)
 
-	activity1 := newActivity(valve1, pressure_to_be_released1, openable_count1, map[string]*Activity{}, &max_pressure1)
+	activity1 := newActivity(valve1, pressure_to_be_released1, openable_count1, &max_pressure1)
 	pressure1 := activity1.calculateReleasedPressure()
 
 	fmt.Println(pressure1)

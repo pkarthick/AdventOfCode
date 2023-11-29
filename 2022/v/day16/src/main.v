@@ -5,18 +5,16 @@ enum Action {
 }
 
 struct Valve {
-	
-	name        string   [required]
-	rate        int      [required]
-	connections []string [required]
+	name        string   @[required]
+	rate        int      @[required]
+	connections []string @[required]
 }
 
-[heap]
+@[heap]
 struct Activity {
-	valve                   Valve
-	valves 					map[string]Valve
-	
-	mut: 
+	valve  Valve
+	valves map[string]Valve
+mut:
 	previous_activity       ?&Activity
 	minutes                 int
 	total_pressure_released int
@@ -26,23 +24,12 @@ struct Activity {
 }
 
 fn new_activity(valves map[string]Valve, openable_count int, max_activities map[string]Activity) Activity {
+	valve := valves['AA'] or { panic('Unexpected valve!') }
 
-	valve := valves["AA"] or { panic("Unexpected valve!") }
-
-	return Activity{
-		&valve,
-		valves,
-		none,
-		0,
-		0,
-		openable_count,
-		map[string]int{},
-		max_activities,
-	}
+	return Activity{&valve, valves, none, 0, 0, openable_count, map[string]int{}, max_activities}
 }
 
 fn (activity Activity) in_loop(valve &Valve) bool {
-
 	mut current := activity
 
 	for {
@@ -51,37 +38,32 @@ fn (activity Activity) in_loop(valve &Valve) bool {
 		}
 
 		if current.previous_activity != none {
-			mut current1 := current.previous_activity or { return false}
+			mut current1 := current.previous_activity or { return false }
 			return current1.in_loop(valve)
 		} else {
 			return false
 		}
-
 	}
 
 	return false
 }
 
 fn (mut activity Activity) move_to(valve &Valve) int {
-
 	if activity.minutes >= 29 {
 		return activity.total_pressure_released
 	}
 
 	mut a := Activity{
 		...activity
-		valve: valve,
-		previous_activity: activity,
-		minutes: activity.minutes + 1,
-		
+		valve: valve
+		previous_activity: activity
+		minutes: activity.minutes + 1
 	}
 
 	return a.calculate_released_pressure()
-
 }
 
 fn (mut activity Activity) open_valve() int {
-
 	if activity.minutes >= 29 {
 		return activity.total_pressure_released
 	}
@@ -92,17 +74,17 @@ fn (mut activity Activity) open_valve() int {
 	// max_activities := maps.Clone(activity.max_activities)
 
 	mut open_activity := Activity{
-		...activity,
-		previous_activity: none,
-		minutes: activity.minutes + 1,
-		total_pressure_released: activity.total_pressure_released + (29-activity.minutes)*activity.valve.rate,
-		open_valves: open_valves,
+		...activity
+		previous_activity: none
+		minutes: activity.minutes + 1
+		total_pressure_released: activity.total_pressure_released +
+			(29 - activity.minutes) * activity.valve.rate
+		open_valves: open_valves
 	}
 
 	key := create_key(open_valves)
-	
-	if key in open_activity.max_activities {
 
+	if key in open_activity.max_activities {
 		previous_max_activity := open_activity.max_activities[key] or { return 0 }
 
 		if open_activity.total_pressure_released > previous_max_activity.total_pressure_released {
@@ -130,12 +112,9 @@ fn (mut activity Activity) open_valve() int {
 			return open_activity.visit_connections()
 		}
 	}
-
 }
 
-
 fn (mut a Activity) visit_connections() int {
-
 	if a.minutes >= 29 {
 		return a.total_pressure_released
 	}
@@ -146,13 +125,11 @@ fn (mut a Activity) visit_connections() int {
 		valve := a.valves[connected_valve] or { return 0 }
 
 		if !a.in_loop(valve) {
-
 			moved_pressure := a.move_to(valve)
 
 			if moved_pressure > max_pressure {
 				max_pressure = moved_pressure
 			}
-
 		}
 	}
 
@@ -160,11 +137,9 @@ fn (mut a Activity) visit_connections() int {
 }
 
 fn (mut activity Activity) calculate_released_pressure() int {
-
 	if activity.minutes >= 29 {
 		return activity.total_pressure_released
-	} else if activity.valve.rate > 0 && !(activity.valve.name in activity.open_valves) {
-		
+	} else if activity.valve.rate > 0 && activity.valve.name !in activity.open_valves {
 		open := activity.open_valve()
 		move := activity.visit_connections()
 
@@ -173,11 +148,9 @@ fn (mut activity Activity) calculate_released_pressure() int {
 		} else {
 			return move
 		}
-
 	} else {
 		return activity.visit_connections()
 	}
-
 }
 
 fn create_key[V](m map[string]V) string {
@@ -185,7 +158,6 @@ fn create_key[V](m map[string]V) string {
 	keys.sort()
 	return keys.str()
 }
-
 
 fn (v Valve) to_string() string {
 	return 'name: ${v.name}'
@@ -202,7 +174,6 @@ fn parse(line string) Valve {
 }
 
 fn main() {
-
 	input := 'Valve AA has flow rate=0; tunnels lead to valves DD, II, BB
 Valve BB has flow rate=13; tunnels lead to valves CC, AA
 Valve CC has flow rate=2; tunnels lead to valves DD, BB

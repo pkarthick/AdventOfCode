@@ -1,7 +1,6 @@
 import gleam/list
 import gleam/map
 import gleam/int
-import gleam/io
 import gleam/string
 import valve
 import data
