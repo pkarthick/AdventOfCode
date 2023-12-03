@@ -120,4 +120,19 @@ def part2(input: String): String =
     .toString()
 
 @main def part12: Unit =
-  println("both!")
+  
+  val input = loadInput()
+  val schematic = EngineSchematic(input)
+
+  val sumOfPartNumbers = schematic.parts
+    .map(_.number)
+    .sum
+    .toString()
+
+  val sumOfGearRatio = schematic.gears
+    .map(_.ratio)
+    .sum
+    .toString()
+
+  println(s"Solution for part1 is $sumOfPartNumbers")
+  println(s"Solution for part2 is $sumOfGearRatio")
