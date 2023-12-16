@@ -40,7 +40,7 @@ const Data = struct {
             //Valve AA has flow rate=0; tunnels lead to valves DD, II, BB
             _ = tokens_iter.next(); // Valve
 
-            var name = tokens_iter.next().?; //{Name}
+            const name = tokens_iter.next().?; //{Name}
             if (std.mem.eql(u8, name, "AA")) {
                 start_valve = len;
             }
@@ -50,7 +50,7 @@ const Data = struct {
             _ = tokens_iter.next(); // flow
             _ = tokens_iter.next(); // rate
 
-            var rate = tokens_iter.next().?; // {rate}
+            const rate = tokens_iter.next().?; // {rate}
             const pressure: u64 = try std.fmt.parseInt(u64, rate, 10);
 
             total_pressure += pressure;
@@ -119,7 +119,7 @@ const OpenValves = struct {
     const Self = @This();
 
     fn init(allocator: std.mem.Allocator) Self {
-        var opened = std.ArrayList(u64).init(allocator);
+        const opened = std.ArrayList(u64).init(allocator);
 
         return OpenValves{
             .opened = opened,
@@ -151,65 +151,18 @@ const OpenValves = struct {
     }
 };
 
-const OpenActivity = struct {
-    data: *const Data,
-    valve_id: u64,
-    released_pressure: u64,
-    minutes_elapsed: u64,
-    open_valves: OpenValves,
-    remaining_total_pressure: u64,
-    allocator: std.mem.Allocator,
-
-    const Self = @This();
-
-    fn create_move_activity(self: *const Self, valve_id: u64) MoveActivity {
-        return MoveActivity{
-            .valve_id = valve_id,
-            .data = self.data,
-            .previous_move = null,
-            .minutes_elapsed = self.minutes_elapsed + 1,
-            .open = &self,
-            .allocator = self.allocator,
-        };
-    }
-
-    fn visit_connections(self: *const Self, state: *State) !u64 {
-        var max_pressure: u64 = 0;
-        var conns = self.data.connections.items[self.valve_id];
-        for (conns.items) |conn_valve_id| {
-            var move_activity = self.create_move_activity(conn_valve_id);
-            if (move_activity.can_release_max_pressure(state)) {
-                // var pressure = try move_activity.compute_maximum_pressure_released(state);
-                // if (pressure > max_pressure) {
-                //     max_pressure = pressure;
-                // }
-            }
-        }
-
-        return max_pressure;
-    }
-};
-
 const MoveActivity = struct {
     data: *const Data,
-    valve_id: u64,
-    minutes_elapsed: u64,
     previous_move: ?*const MoveActivity,
-    open: ?*const MoveActivity,
+    minutes_elapsed: u64,
+    valve_id: u64,
+    open: ?*const OpenActivity,
     allocator: std.mem.Allocator,
-    released_pressure: u64,
-    kind: ActivityKind,
-    open_valves: OpenValves,
-    remaining_total_pressure: u64,
 
     const Self = @This();
 
     fn init(allocator: std.mem.Allocator, data: *const Data) Self {
         return MoveActivity{
-            .kind = ActivityKind.Move,
-            .released_pressure = 0,
-            .open_valves = OpenValves.init(allocator),
-            .remaining_total_pressure = data.total_pressure,
             .valve_id = data.start_valve,
             .data = data,
             .previous_move = null,
@@ -219,17 +172,14 @@ const MoveActivity = struct {
         };
     }
 
-    fn create_open_activity(self: *const Self, state: *State) !?MoveActivity {
+    fn create_open_activity(self: *const Self, state: *State) !?*const OpenActivity {
         state.count += 1;
         if (self.open) |open_activity| {
             const open_valves = try open_activity.open_valves.add_valve(self.valve_id);
 
-            const oa = MoveActivity{
-                .kind = ActivityKind.Open,
+            const oa = OpenActivity{
                 .valve_id = self.valve_id,
-                .open = self.open,
                 .data = self.data,
-                .previous_move = null,
                 .minutes_elapsed = self.minutes_elapsed + 1,
                 .released_pressure = open_activity.released_pressure + (self.data.available_minutes - 1 - self.minutes_elapsed) * self.data.pressures.items[self.valve_id],
                 .remaining_total_pressure = open_activity.remaining_total_pressure - self.data.pressures.items[self.valve_id],
@@ -249,15 +199,12 @@ const MoveActivity = struct {
             }
 
             try state.max_pressures.put(key, &oa);
-            return oa;
+            return &oa;
         } else {
             const open_valves = OpenValves.init(self.allocator);
 
-            return MoveActivity{
-                .kind = ActivityKind.Open,
-                .previous_move = self,
+            return &OpenActivity{
                 .valve_id = self.valve_id,
-                .open = null,
                 .data = self.data,
                 .minutes_elapsed = self.minutes_elapsed + 1,
                 .released_pressure = (self.data.available_minutes - 1 - self.minutes_elapsed) * self.data.pressures.items[self.valve_id],
@@ -317,26 +264,47 @@ const MoveActivity = struct {
         return false;
     }
 
-    // fn visit_connections(self: Self, state: *State) !u64 {
-    //     var max_pressure: u64 = 0;
-    //     if (self.minutes_elapsed < self.data.available_minutes) {
-    //         var conns = self.data.connections.items[self.valve_id];
-    //         for (conns.items) |conn_valve_id| {
-    //             if (!self.in_loop(conn_valve_id)) {
-    //                 state.count += 1;
-    //                 const move_activity = self.create_move_activity(conn_valve_id);
-    //                 if (move_activity.can_release_max_pressure(state)) {
-    //                     const pressure = try move_activity.compute_maximum_pressure_released(state);
-    //                     if (pressure > max_pressure) {
-    //                         max_pressure = pressure;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
+    fn visit_connections1(self: *const Self, state: *State) !u64 {
+        var max_pressure: u64 = 0;
+        if (self.minutes_elapsed < self.data.available_minutes) {
+            const conns = self.data.connections.items[self.valve_id];
+            for (conns.items) |conn_valve_id| {
+                if (!self.in_loop(conn_valve_id)) {
+                    state.count += 1;
+                    const move_activity = self.create_move_activity(conn_valve_id);
+                    if (move_activity.can_release_max_pressure(state)) {
+                        const pressure = try move_activity.compute_maximum_pressure_released1(state);
+                        if (pressure > max_pressure) {
+                            max_pressure = pressure;
+                        }
+                    }
+                }
+            }
+        }
 
-    //     return max_pressure;
-    // }
+        return max_pressure;
+    }
+
+    fn visit_connections(self: *const Self, state: *State) !u64 {
+        var max_pressure: u64 = 0;
+        if (self.minutes_elapsed < self.data.available_minutes) {
+            const conns = self.data.connections.items[self.valve_id];
+            for (conns.items) |conn_valve_id| {
+                if (!self.in_loop(conn_valve_id)) {
+                    state.count += 1;
+                    const move_activity = self.create_move_activity(conn_valve_id);
+                    if (move_activity.can_release_max_pressure(state)) {
+                        const pressure = try move_activity.compute_maximum_pressure_released(state);
+                        if (pressure > max_pressure) {
+                            max_pressure = pressure;
+                        }
+                    }
+                }
+            }
+        }
+
+        return max_pressure;
+    }
 
     fn create_move_activity(self: *const Self, valve_id: u64) MoveActivity {
         return MoveActivity{
@@ -347,7 +315,6 @@ const MoveActivity = struct {
             .open = self.open,
             .allocator = self.allocator,
             .released_pressure = self.released_pressure,
-            .kind = ActivityKind.Move,
             .remaining_total_pressure = self.remaining_total_pressure,
             .open_valves = self.open_valves,
         };
@@ -364,37 +331,38 @@ const MoveActivity = struct {
             var max_pressure: u64 = 0;
             if (self.valve_can_be_opened(self.valve_id)) {
                 if (try self.create_open_activity(state)) |open_activity| {
-                    if (open_activity.minutes_elapsed < open_activity.data.available_minutes) {
-                        var conns = open_activity.data.connections.items[self.valve_id];
-                        for (conns.items) |conn_valve_id| {
-                            if (!(&open_activity).in_loop(conn_valve_id)) {
-                                state.count += 1;
-                                const move_activity = open_activity.create_move_activity(conn_valve_id);
-                                if (move_activity.can_release_max_pressure(state)) {
-                                    const pressure = try move_activity.compute_maximum_pressure_released(state);
-                                    if (pressure > max_pressure) {
-                                        max_pressure = pressure;
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    max_pressure = try open_activity.visit_connections(state);
                 }
             }
 
-            if (self.minutes_elapsed < self.data.available_minutes) {
-                var conns = self.data.connections.items[self.valve_id];
-                for (conns.items) |conn_valve_id| {
-                    if (!self.in_loop(conn_valve_id)) {
-                        state.count += 1;
-                        const move_activity = self.create_move_activity(conn_valve_id);
-                        if (move_activity.can_release_max_pressure(state)) {
-                            const pressure = try move_activity.compute_maximum_pressure_released(state);
-                            if (pressure > max_pressure) {
-                                max_pressure = pressure;
-                            }
-                        }
-                    }
+            if (try self.visit_connections(state)) |move_pressure| {
+                if (move_pressure > max_pressure) {
+                    max_pressure = move_pressure;
+                }
+            }
+
+            return max_pressure;
+        }
+    }
+
+    fn compute_maximum_pressure_released1(self: *const Self, state: *State) !u64 {
+        if (self.minutes_elapsed == self.data.available_minutes - 1) {
+            if (self.open) |open| {
+                return open.released_pressure;
+            } else {
+                return 0;
+            }
+        } else {
+            var max_pressure: u64 = 0;
+            if (self.valve_can_be_opened(self.valve_id)) {
+                if (try self.create_open_activity(state)) |open_activity| {
+                    max_pressure = try open_activity.visit_connections1(state);
+                }
+            }
+
+            if (try self.visit_connections(state)) |move_pressure| {
+                if (move_pressure > max_pressure) {
+                    max_pressure = move_pressure;
                 }
             }
 
@@ -403,15 +371,70 @@ const MoveActivity = struct {
     }
 };
 
+const OpenActivity = struct {
+    data: *const Data,
+    valve_id: u64,
+    released_pressure: u64,
+    minutes_elapsed: u64,
+    open_valves: OpenValves,
+    remaining_total_pressure: u64,
+    allocator: std.mem.Allocator,
+
+    const Self = @This();
+
+    fn create_move_activity(self: *const Self, valve_id: u64) *const MoveActivity {
+        return &MoveActivity{
+            .valve_id = valve_id,
+            .data = self.data,
+            .previous_move = null,
+            .minutes_elapsed = self.minutes_elapsed + 1,
+            .open = self,
+            .allocator = self.allocator,
+        };
+    }
+
+    fn visit_connections1(self: *const Self, state: *State) !u64 {
+        var max_pressure: u64 = 0;
+        const conns = self.data.connections.items[self.valve_id];
+        for (conns.items) |conn_valve_id| {
+            const move_activity = self.create_move_activity(conn_valve_id);
+            if (move_activity.can_release_max_pressure(state)) {
+                const pressure = try move_activity.compute_maximum_pressure_released1(state);
+                if (pressure > max_pressure) {
+                    max_pressure = pressure;
+                }
+            }
+        }
+
+        return max_pressure;
+    }
+
+    fn visit_connections(self: *const Self, state: *State) !u64 {
+        var max_pressure: u64 = 0;
+        const conns = self.data.connections.items[self.valve_id];
+        for (conns.items) |conn_valve_id| {
+            const move_activity = self.create_move_activity(conn_valve_id);
+            if (move_activity.can_release_max_pressure(state)) {
+                const pressure = try move_activity.compute_maximum_pressure_released1(state);
+                if (pressure > max_pressure) {
+                    max_pressure = pressure;
+                }
+            }
+        }
+
+        return max_pressure;
+    }
+};
+
 const State = struct {
-    max_pressures: std.StringHashMap(*const MoveActivity),
+    max_pressures: std.StringHashMap(*const OpenActivity),
     max_pressure: u64,
     count: u64,
 
     const Self = @This();
 
     fn init(allocator: std.mem.Allocator) Self {
-        var max_pressures = std.StringHashMap(*const MoveActivity).init(allocator);
+        const max_pressures = std.StringHashMap(*const OpenActivity).init(allocator);
         return State{
             .max_pressures = max_pressures,
             .max_pressure = 0,
@@ -434,7 +457,9 @@ pub fn main() !void {
     defer data.deinit();
 
     var state = State.init(allocator);
+
     const move_activity = MoveActivity.init(allocator, &data);
     const max_pressure = try move_activity.compute_maximum_pressure_released(&state);
+
     std.debug.print("{d}\n", .{max_pressure});
 }

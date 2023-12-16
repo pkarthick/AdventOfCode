@@ -1,0 +1,73 @@
+
+    // fn can_move1(&self, direction: Direction, (from_row, from_col): (usize, usize)) -> bool {
+    //     if let Some((to_row, to_col)) = self.get_coordinate((from_row, from_col), direction.clone())
+    //     {
+    //         match (&self.grid[from_row][from_col], &self.grid[to_row][to_col]) {
+    //             (Pipe::H, _) => true,
+    //             (_, Pipe::H) => false,
+
+    //             (Pipe::G, Pipe::G) => false,
+
+    //             (Pipe::G, _) => true,
+
+    //             (_, Pipe::G) => false,
+
+    //             (Pipe::V, Pipe::V) => {
+    //                 direction == Direction::North || direction == Direction::South
+    //             }
+
+    //             (Pipe::V, Pipe::J) => false,
+    //             (Pipe::V, _) => false,
+
+    //             (Pipe::D7, Pipe::V) => direction == Direction::North,
+    //             (Pipe::L, Pipe::V) => direction == Direction::North,
+    //             (Pipe::F, Pipe::V) => direction == Direction::South,
+    //             (Pipe::J, Pipe::V) => direction == Direction::North,
+
+    //             (Pipe::H, Pipe::H) => direction == Direction::West || direction == Direction::East,
+
+    //             (Pipe::H, Pipe::D7) => direction == Direction::East,
+    //             (Pipe::D7, Pipe::H) => direction == Direction::West,
+
+    //             (Pipe::H, Pipe::F) => direction == Direction::West,
+    //             (Pipe::F, Pipe::H) => direction == Direction::East,
+
+    //             (Pipe::L, Pipe::H) => direction == Direction::East,
+    //             (Pipe::H, Pipe::L) => direction == Direction::West,
+
+    //             (Pipe::J, Pipe::H) => direction == Direction::West,
+    //             (Pipe::H, Pipe::J) => direction == Direction::East,
+
+    //             (Pipe::L, Pipe::J) => direction == Direction::East || direction == Direction::South,
+
+    //             (Pipe::L, Pipe::D7) => false,
+
+    //             (Pipe::L, Pipe::F) => direction == Direction::North,
+
+    //             (Pipe::J, Pipe::L) => direction == Direction::West,
+
+    //             (Pipe::J, Pipe::J) => true,
+    //             (Pipe::F, Pipe::F) => true,
+    //             (Pipe::L, Pipe::L) => true,
+    //             (Pipe::D7, Pipe::D7) => true,
+
+    //             (Pipe::J, Pipe::D7) => direction == Direction::North,
+    //             (Pipe::J, Pipe::F) => direction == Direction::North || direction == Direction::West,
+
+    //             (Pipe::D7, Pipe::L) => {
+    //                 direction == Direction::South || direction == Direction::West
+    //             }
+    //             (Pipe::D7, Pipe::J) => direction == Direction::South,
+
+    //             (Pipe::D7, Pipe::F) => direction == Direction::West,
+
+    //             (Pipe::F, Pipe::L) => direction == Direction::South,
+    //             (Pipe::F, Pipe::J) => direction == Direction::South || direction == Direction::East,
+    //             (Pipe::F, Pipe::D7) => direction == Direction::East,
+
+    //             (Pipe::H, Pipe::V) => true,
+    //         }
+    //     } else {
+    //         false
+    //     }
+    // }

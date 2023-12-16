@@ -1,0 +1,197 @@
+package day08
+
+import locations.Directory.currentDir
+import inputs.Input.loadFileSync
+
+@main def part1: Unit =
+  println(s"The solution is ${part1(loadInput())}")
+
+@main def part2: Unit =
+  println(s"The solution is ${part2(loadInput())}")
+
+def loadInput(): String = loadFileSync(
+  s"$currentDir/../../../../input/day08"
+)
+
+enum Direction:
+  case Left, Right
+
+case class Node(node: String, leftNode: String, rightNode: String)
+
+case class DesertMap(directions: List[Direction], nodes: Map[String, Node])
+
+def createMap(input: String): DesertMap =
+
+  val (dirs, nodeList) = input match {
+    case s"""$directions
+
+$nodeList""" => (directions, nodeList)
+  }
+
+  val nodes = nodeList.linesIterator.map {
+    case s"$node = ($leftNode, $rightNode)" =>
+      (node, Node(node, leftNode, rightNode))
+  }.toMap
+
+  val directions = dirs
+    .toCharArray()
+    .map {
+      case 'L' => Direction.Left
+      case 'R' => Direction.Right
+    }
+    .toList
+
+  DesertMap(directions, nodes)
+
+def part1(input: String): String =
+
+  val dm = createMap(input)
+
+  val (count, _, _) = traverseMap(dm, "AAA", "AAA", "ZZZ", dm.directions, 0)
+
+  count.toString()
+
+def traverseMap(
+    dm: DesertMap,
+    node: String,
+    startNode: String,
+    destNode: String,
+    directions: List[Direction],
+    count: Int
+): (Int, String, List[Direction]) =
+  directions match {
+    case Nil => traverseMap(dm, node, startNode, destNode, dm.directions, count)
+    case direction :: _ =>
+      dm.nodes(node) match {
+        // case Node(sn, leftNode, rightNode) if sn == startNode && count > 0 => (-1)
+        case Node(dn, leftNode, rightNode) if dn == destNode =>
+          (count, dn, directions.tail)
+        case Node(node, leftNode, rightNode) =>
+          direction match {
+            case Direction.Left =>
+              traverseMap(
+                dm,
+                leftNode,
+                startNode,
+                destNode,
+                directions.tail,
+                count + 1
+              )
+            case Direction.Right =>
+              traverseMap(
+                dm,
+                rightNode,
+                startNode,
+                destNode,
+                directions.tail,
+                count + 1
+              )
+          }
+      }
+  }
+
+def traverseMap1(
+    dm: DesertMap,
+    node: String,
+    directions: List[Direction],
+    targetCount: Int,
+    count: Int
+): (Int, String, List[Direction]) =
+  directions match {
+    case Nil => traverseMap1(dm, node, dm.directions, targetCount, count)
+    case direction :: _ =>
+      dm.nodes(node) match {
+        case Node(dn, leftNode, rightNode) if count >= targetCount && node.endsWith("Z") => 
+          (count, node, directions.tail)
+
+        case Node(node, leftNode, rightNode) =>
+          direction match {
+            case Direction.Left =>
+              traverseMap1(dm, leftNode, directions.tail, targetCount, count + 1)
+            case Direction.Right =>
+              traverseMap1(dm, rightNode, directions.tail, targetCount, count + 1)
+          }
+      }
+  }
+
+def simulataneousTraversal(
+    dm: DesertMap,
+    nodes: List[String],
+    directions: List[Direction],
+    count: Int
+): Int =
+
+  val inputs = nodes.map(n => (n, directions, 0)).toList
+
+  val results = nodes.map(n => traverseMap1(dm, n, directions, 0, 0)).toList
+
+  if results.toSet.size == 1 then
+    results.head
+  else
+    
+    val results = nodes.map(n => traverseMap1(dm, n, directions, 0, 0)).toList
+    val maxCount = results.map(_._1).max
+    simulataneousTraversal(dm, )
+
+  0
+
+  // if results.map(r => r._1).toSet.size == 1 then {
+  //   results.head._1
+  // }
+
+  // directions match {
+  //   case Nil =>
+  //     simulataneousTraversal(dm, initialNodes, nodes, dm.directions, count)
+  //   case direction :: _ =>
+  //     nodes match {
+  //       // case _ if (nodes.toSet.intersect(initialNodes.toSet)).size == nodes.size && count > 0 => -1
+  //       case _ if nodes.forall(n => n.endsWith("Z")) => count
+  //       case _ =>
+  //         direction match {
+  //           case Direction.Left =>
+  //             simulataneousTraversal(
+  //               dm,
+  //               initialNodes,
+  //               nodes.map(n => dm.nodes(n).leftNode),
+  //               directions.tail,
+  //               count + 1
+  //             )
+  //           case Direction.Right =>
+  //             simulataneousTraversal(
+  //               dm,
+  //               initialNodes,
+  //               nodes.map(n => dm.nodes(n).rightNode),
+  //               directions.tail,
+  //               count + 1
+  //             )
+  //         }
+  //     }
+  // }
+
+def part2(input: String): String =
+
+//   val input = """LR
+
+// 11A = (11B, XXX)
+// 11B = (XXX, 11Z)
+// 11Z = (11B, XXX)
+// 22A = (22B, XXX)
+// 22B = (22C, 22C)
+// 22C = (22Z, 22Z)
+// 22Z = (22B, 22B)
+// XXX = (XXX, XXX)"""
+
+  val dm = createMap(input)
+
+  val as = dm.nodes.keySet.filter(k => k.endsWith("A")).toList
+
+  val inputs = as.map(n => (n, dm.directions, 0)).toList
+
+  val x = simulataneousTraversal(dm, as, as, dm.directions, 0)
+
+
+  x.toString()
+
+@main def part12: Unit =
+
+  val input = loadInput()
