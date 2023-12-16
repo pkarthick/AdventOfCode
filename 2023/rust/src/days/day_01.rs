@@ -1,11 +1,11 @@
-use std::{str::FromStr, collections::HashSet};
+use std::{collections::HashSet, str::FromStr};
 
 pub struct Input {
-    calibrations: Vec<Calibration>
+    calibrations: Vec<Calibration>,
 }
 
 pub struct Calibration {
-    info: String
+    info: String,
 }
 
 impl Calibration {
@@ -14,16 +14,22 @@ impl Calibration {
     }
 
     fn value(&self) -> u32 {
-        let digits: Vec<u32> = self.info.chars().filter(|c| c.is_digit(10)).map(|c| c.to_digit(10).unwrap()).collect();
+        let digits: Vec<u32> = self
+            .info
+            .chars()
+            .filter(|c| c.is_digit(10))
+            .map(|c| c.to_digit(10).unwrap())
+            .collect();
         digits[0] * 10 + digits.last().unwrap()
     }
 
     fn value2(&self) -> u32 {
-
         let mut digit_and_index_vec: HashSet<(usize, u32)> = HashSet::new();
-        let string_digits: Vec<&str> = vec!["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+        let string_digits: Vec<&str> = vec![
+            "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+        ];
 
-        for (ch, d) in ('0' ..= '9').into_iter().zip(0_u32..=9) {
+        for (ch, d) in ('0'..='9').into_iter().zip(0_u32..=9) {
             if let Some(index) = self.info.find(ch) {
                 digit_and_index_vec.insert((index, d));
             }
@@ -32,8 +38,7 @@ impl Calibration {
             }
         }
 
-
-        for (s, d) in  string_digits.into_iter().zip(1_u32..=9) {
+        for (s, d) in string_digits.into_iter().zip(1_u32..=9) {
             if let Some(index) = self.info.find(s) {
                 digit_and_index_vec.insert((index, d));
             }
@@ -46,17 +51,13 @@ impl Calibration {
         digit_and_index_vec.sort();
 
         (digit_and_index_vec.first().unwrap().1 * 10) + digit_and_index_vec.last().unwrap().1
-
     }
-
 }
 
 impl Input {
     fn new(s: &str) -> Self {
         let calibrations = s.split("\n").map(|s| Calibration::new(s.into())).collect();
-        Self {
-            calibrations
-        }
+        Self { calibrations }
     }
 }
 
@@ -70,8 +71,7 @@ impl FromStr for Input {
 
 pub struct Day {}
 
-impl crate::day::Day<Input, Input> for Day {
-
+impl crate::day::DayTrait<Input, Input> for Day {
     fn day_number(&self) -> &'static str {
         "01"
     }

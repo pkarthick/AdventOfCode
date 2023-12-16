@@ -2,3 +2,7 @@
 2022/testdata/**
 2022/**/puzzle
 2022/**/sample
+2023/input
+2023/rust/**/.vscode
+2023/scala/.clj-kondo
+2023/scala/.lsp

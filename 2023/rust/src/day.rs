@@ -1,10 +1,9 @@
 use std::{
-    str::FromStr, 
     io::{self},
+    str::FromStr,
 };
 
-pub trait Day<Input1: FromStr, Input2: FromStr> {
-    
+pub trait DayTrait<Input1: FromStr, Input2: FromStr> {
     fn day_number(&self) -> &'static str;
     fn part1_input(&self) -> &'static str;
     fn part2_input(&self) -> &'static str;
@@ -12,7 +11,7 @@ pub trait Day<Input1: FromStr, Input2: FromStr> {
     fn part1(&self, input: Input1) -> String;
     fn part2(&self, input: Input2) -> String;
 
-    fn run(&self, part_num: usize) -> io::Result<String>{
+    fn run(&self, part_num: usize) -> io::Result<String> {
         match part_num {
             1 => {
                 let buffer = std::fs::read_to_string(format!("../input/{}", self.part1_input()))?;
@@ -37,9 +36,8 @@ pub trait Day<Input1: FromStr, Input2: FromStr> {
                         self.day_number()
                     );
                 }
-            },
-            _ => panic!("Only parts 1 and 2 are available!")
+            }
+            _ => panic!("Only parts 1 and 2 are available!"),
         }
     }
 }
-
