@@ -12,11 +12,21 @@ import scala.compiletime.ops.int
 
 def loadInput(): String = loadFileSync(s"$currentDir/../../../../input/day03")
 
-case class Position(row: Int, col: Int)
-case class SchematicNumber(digits: String, position: Position)
+type Position = (Int, Int)
+
+extension (p: Position)
+  def row = p._1
+  def col = p._2
+
+// To store continuous digits
+case class ContiguousDigits(digits: String, position: Position)
+
+// To store continuous digits adjacent symbol. This is a part.
 case class Part(digits: String, position: Position):
   val size = digits.size
   val number = digits.toInt
+
+// An asterisk (*) with two adjacent parts and its location
 case class Gear(position: Position, part1: Part, part2: Part):
   val ratio = part1.number * part2.number
 
@@ -25,10 +35,7 @@ val offsets =
 
 case class EngineSchematic(input: String):
 
-  val rows =
-    (for line <- input.linesIterator yield {
-      line.toCharArray().toVector
-    }).toVector
+  val rows = input.linesIterator.map { _.toCharArray().toVector }.toVector
 
   val height = rows.size
   val width = rows(0).size
@@ -36,7 +43,7 @@ case class EngineSchematic(input: String):
     (for r <- 0 until rows.size yield {
       val (nums, (partCol, chars)) =
         rows(r).zipWithIndex.foldLeft(
-          (List.newBuilder[SchematicNumber], (-1, List[Char]()))
+          (List.newBuilder[ContiguousDigits], (-1, List[Char]()))
         ) { case ((nums, (partCol, chars)), (ch, col)) =>
           if ch.isDigit then
             (
@@ -45,31 +52,53 @@ case class EngineSchematic(input: String):
             )
           else if chars.isEmpty then (nums, (-1, chars))
           else if chars.size > 0 then
-            val part = SchematicNumber(chars.mkString, Position(r, partCol))
+            val part = ContiguousDigits(chars.mkString, (r, partCol))
             (nums += part, (-1, List()))
           else (nums, (-1, List()))
         }
 
       if chars.size > 0 then
-        val part = SchematicNumber(chars.mkString, Position(r, partCol))
+        val part = ContiguousDigits(chars.mkString, (r, partCol))
         nums += part
 
       nums.result()
     }).flatten
 
+  def inBounds(pos: Position) =
+    pos.row >= 0 && pos.col >= 0 && pos.row < height && pos.col < width
+
+  def isSymbol(pos: Position) =
+    val (r, c) = pos
+    rows(r)(c) != '.' && !rows(r)(c).isDigit
+
   def adjacentPositions(size: Int, position: Position) =
-    (0 until size)
-      .flatMap(s =>
-        offsets
-          .map((r, c) => (position.row + r, position.col + c + s))
-          .filter((r, c) => r >= 0 && c >= 0 && r < height && c < width)
-      )
-      .toSet
+
+    val leftCellsOffset =
+      List((-1, -1), (0, -1), (1, -1))
+        .map((r, c) => (position.row + r, position.col + c))
+     
+
+    val topAndBottomCells =
+      (0 until size)
+        .flatMap(cc =>
+          List(
+            (position.row - 1, position.col + cc),
+            (position.row + 1, position.col + cc)
+          )
+        )
+     
+
+    val rightCells =
+      List((-1, 1), (0, 1), (1, 1))
+        .map((r, c) => (position.row + r, position.col + c + size - 1))
+        
+
+    (leftCellsOffset ++ topAndBottomCells ++ rightCells).filter(inBounds).toList
 
   def symbolsAroundCells(position: Position, count: Int) =
     adjacentPositions(count, position)
-      .filter((r, c) => rows(r)(c) != '.' && !rows(r)(c).isDigit)
-      .map((r, c) => (rows(r)(c), Position(r, c)))
+      .filter(isSymbol)
+      .map((r, c) => (rows(r)(c), (r, c)))
 
   val parts =
     numbers
@@ -94,12 +123,11 @@ case class EngineSchematic(input: String):
         case None       => m + (asteriskPos -> List(part))
       }
     }
-    .map {
+    .flatMap {
       case (asteriskPos, List(part1, part2)) =>
         Some(Gear(asteriskPos, part1, part2))
       case _ => None
     }
-    .flatten
 
 def part1(input: String): String =
 
@@ -120,7 +148,7 @@ def part2(input: String): String =
     .toString()
 
 @main def part12: Unit =
-  
+
   val input = loadInput()
   val schematic = EngineSchematic(input)
 
