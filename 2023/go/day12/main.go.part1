@@ -1,0 +1,127 @@
+package part1
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strconv"
+	"strings"
+)
+
+const HASH = 35
+const DOT = 46
+const QUESTION = 63
+
+type Record struct {
+	conditions        string
+	conditions_length int
+	sizes             []int
+	sizes_len         []int
+	count             uint64
+}
+
+func (record *Record) count_arrangements(index int, size_index int) {
+
+	if size_index == len(record.sizes) && index <= record.conditions_length {
+		return
+	}
+
+	size := record.sizes[size_index]
+
+	if index+record.sizes_len[size_index] > record.conditions_length {
+		return
+	}
+
+	if index+1+size <= record.conditions_length && record.conditions[index] != '#' {
+		record.count_arrangements(index+1, size_index)
+	}
+
+	if index+size > record.conditions_length {
+		return
+	}
+
+	if index+size < record.conditions_length && record.conditions[index+size] == '#' {
+		return
+	}
+
+	for i := range size {
+		if record.conditions[index+i] == '.' {
+			return
+		}
+	}
+
+	if size_index == len(record.sizes)-1 {
+
+		if index+size <= record.conditions_length {
+
+			for i := index + size; i < record.conditions_length; i++ {
+				if record.conditions[i] == '#' {
+					return
+				}
+			}
+
+		}
+
+		record.count += 1
+
+	} else {
+		record.count_arrangements(index+size+1, size_index+1)
+	}
+
+}
+
+func main() {
+	// Open the file
+	file, err := os.Open("puzzle.txt")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer file.Close()
+
+	// Create a scanner
+	scanner := bufio.NewScanner(file)
+
+	var total_count uint64
+	total_count = 0
+
+	// Read and print lines
+	for scanner.Scan() {
+		line := scanner.Text()
+		frags := strings.Split(line, " ")
+
+		sizes_str := strings.Split(frags[1], ",")
+		var sizes = make([]int, len(sizes_str))
+		var sizes_len = make([]int, len(sizes_str))
+
+		for i, size_str := range sizes_str {
+			size, _ := strconv.Atoi(size_str)
+			sizes[i] = size
+		}
+
+		for i := range len(sizes) {
+
+			var total = 0
+			for j := i; j < len(sizes); j++ {
+				total += sizes[j] + 1
+			}
+
+			sizes_len[i] = total - 1
+
+		}
+
+		record := Record{conditions: frags[0], conditions_length: len(frags[0]), sizes: sizes, sizes_len: sizes_len, count: 0}
+		record.count_arrangements(0, 0)
+		total_count += record.count
+		// fmt.Println(record.count)
+
+	}
+
+	// Check for errors
+	if err := scanner.Err(); err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(total_count)
+
+}
