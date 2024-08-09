@@ -1,0 +1,127 @@
+use std::{collections::HashSet, fs};
+
+fn main() {
+    let ls: Vec<Vec<char>> = fs::read_to_string("../../input/day23")
+        .unwrap()
+        .lines()
+        .map(|l| l.chars().collect())
+        .collect();
+
+    let visited = HashSet::new();
+
+    let max_steps = reach_end(&ls, (0, 1), 1, 0, visited, None);
+
+    println!("{max_steps:?}");
+}
+
+fn reach_end(
+    cells: &Vec<Vec<char>>,
+    (r, c): (usize, usize),
+    steps: usize,
+    max_steps: usize,
+    visited: HashSet<(usize, usize)>,
+    mut slope_dir: Option<char>,
+) -> usize {
+    if (r, c) == (cells.len() - 1, cells[0].len() - 2) {
+        println!("steps {steps:?}");
+        steps
+    } else {
+        let mut adjacent = vec![];
+
+        if let Some(dir) = slope_dir {
+            if r < cells.len() - 1 && cells[r + 1][c] != '#' && !visited.contains(&(r + 1, c)) {
+                slope_dir = None;
+                adjacent.push((r + 1, c))
+            } else {
+                match dir {
+                    '>' => {
+                        if c < cells[0].len() - 1
+                            && cells[r][c + 1] != '#'
+                            && !visited.contains(&(r, c + 1))
+                        {
+                            adjacent.push((r, c + 1))
+                        }
+                    }
+                    '<' => {
+                        if c > 0 && cells[r][c - 1] != '#' && !visited.contains(&(r, c - 1)) {
+                            adjacent.push((r, c - 1))
+                        }
+                    }
+                    '^' => {
+                        if r > 0 && cells[r - 1][c] != '#' && !visited.contains(&(r - 1, c)) {
+                            adjacent.push((r - 1, c))
+                        }
+                    }
+                    'v' => {
+                        if r < cells.len() - 1
+                            && cells[r + 1][c] != '#'
+                            && !visited.contains(&(r + 1, c))
+                        {
+                            adjacent.push((r + 1, c))
+                        }
+                    }
+                    _ => panic!("Unexpected slope!"),
+                }
+            }
+
+            adjacent
+                .into_iter()
+                .map(|(ra, ca)| {
+                    if (ra, ca) == (cells.len() - 1, cells[0].len() - 2) {
+                        println!("steps {steps:?}");
+                        steps
+                    } else {
+                        let mut visited = visited.clone();
+                        visited.insert((ra, ca));
+
+                        let slope_dir = if ['<', '>', '^', 'v'].contains(&cells[ra][ca]) {
+                            Some(cells[ra][ca])
+                        } else {
+                            None
+                        };
+                        reach_end(cells, (ra, ca), steps + 1, max_steps, visited, slope_dir)
+                    }
+                })
+                .max()
+                .unwrap_or(0)
+        } else {
+            if r > 0 && cells[r - 1][c] != '#' && !visited.contains(&(r - 1, c)) {
+                adjacent.push((r - 1, c))
+            }
+
+            if r < cells.len() - 1 && cells[r + 1][c] != '#' && !visited.contains(&(r + 1, c)) {
+                adjacent.push((r + 1, c))
+            }
+
+            if c > 0 && cells[r][c - 1] != '#' && !visited.contains(&(r, c - 1)) {
+                adjacent.push((r, c - 1))
+            }
+
+            if c < cells[0].len() - 1 && cells[r][c + 1] != '#' && !visited.contains(&(r, c + 1)) {
+                adjacent.push((r, c + 1))
+            }
+
+            adjacent
+                .into_iter()
+                .map(|(ra, ca)| {
+                    if (ra, ca) == (cells.len() - 1, cells[0].len() - 2) {
+                        println!("steps {steps:?}");
+                        steps
+                    } else {
+                        let mut visited = visited.clone();
+                        visited.insert((ra, ca));
+
+                        let slope_dir = if ['<', '>', '^', 'v'].contains(&cells[ra][ca]) {
+                            Some(cells[ra][ca])
+                        } else {
+                            None
+                        };
+
+                        reach_end(cells, (ra, ca), steps + 1, max_steps, visited, slope_dir)
+                    }
+                })
+                .max()
+                .unwrap_or(0)
+        }
+    }
+}

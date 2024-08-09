@@ -6,3 +6,5 @@
 2023/rust/**/.vscode
 2023/scala/.clj-kondo
 2023/scala/.lsp
+**/.DS_Store
+**/target

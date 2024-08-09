@@ -1,0 +1,103 @@
+use std::{collections::HashSet, fs};
+
+#[derive(Debug)]
+struct Instruction {
+    size: usize,
+    direction: char,
+    color: String,
+}
+
+impl Instruction {
+    fn new(l: &str) -> Self {
+        let mut iter = l.split(' ').into_iter();
+        let direction = iter.next().unwrap().chars().nth(0).unwrap();
+        let size = iter.next().unwrap().parse::<usize>().unwrap();
+        let color = iter.next().unwrap().to_string();
+        Self {
+            size,
+            direction,
+            color,
+        }
+    }
+}
+
+fn find_connected_cells(
+    (r, c): (i32, i32),
+    perimeter: &HashSet<(i32, i32)>,
+    visited: &mut HashSet<(i32, i32)>,
+) {
+    if !perimeter.contains(&(r, c)) && !visited.contains(&(r, c)) {
+        visited.insert((r, c));
+        find_connected_cells((r + 1, c), perimeter, visited);
+        find_connected_cells((r - 1, c), perimeter, visited);
+        find_connected_cells((r, c + 1), perimeter, visited);
+        find_connected_cells((r, c - 1), perimeter, visited);
+    }
+}
+
+fn main() {
+    let input = fs::read_to_string("../../input/day18").unwrap();
+
+    let mut max_row: i32 = 0;
+    let mut max_col: i32 = 0;
+    let mut min_row: i32 = 0;
+    let mut min_col: i32 = 0;
+    let mut row = 0_i32;
+    let mut col = 0_i32;
+    let mut dug_locations = vec![];
+
+    for l in input.split('\n') {
+        let ins = Instruction::new(l);
+
+        let (r, c, color) = (row, col, &ins.color[1..ins.color.len() - 2].to_string());
+
+        match ins.direction {
+            'R' => {
+                col += ins.size as i32;
+                for cc in c..col {
+                    dug_locations.push((row, cc, color.clone()));
+                }
+            }
+            'L' => {
+                for cc in 0..ins.size as i32 {
+                    dug_locations.push((row, col - cc, color.clone()));
+                }
+                col -= ins.size as i32;
+            }
+            'U' => {
+                for rr in 0..ins.size as i32 {
+                    dug_locations.push((row - rr, col, color.clone()));
+                }
+                row -= ins.size as i32;
+            }
+            'D' => {
+                row += ins.size as i32;
+                for rr in r..row {
+                    dug_locations.push((rr, col, color.clone()));
+                }
+            }
+            _ => panic!("Unexpected direction!"),
+        }
+
+        if col > max_col {
+            max_col = col;
+        } else if col < min_col {
+            min_col = col;
+        }
+
+        if row > max_row {
+            max_row = row;
+        } else if row < min_row {
+            min_row = row;
+        }
+    }
+
+    let perimeter: HashSet<(i32, i32)> =
+        dug_locations.into_iter().map(|(r, c, _)| (r, c)).collect();
+    let mut visited: HashSet<(i32, i32)> = HashSet::new();
+
+    find_connected_cells((1, 1), &perimeter, &mut visited);
+
+    let l = perimeter.len() + visited.len();
+    println!("{l:?}");
+}
