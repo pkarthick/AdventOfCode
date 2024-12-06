@@ -10,3 +10,4 @@
 **/target
 2024/python/data/**
 2024/python/old
+2024/python/__pycache__/**

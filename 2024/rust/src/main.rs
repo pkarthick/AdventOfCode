@@ -8,7 +8,7 @@ mod day02;
 mod day03;
 mod day04;
 mod day05;
-// mod day06;
+mod day06;
 // mod day07;
 // mod day08;
 // mod day09;
@@ -24,7 +24,7 @@ fn run_all_days() {
     let mut day03 = day03::Day::new(include_str!("../data/day03"));
     let mut day04 = day04::Day::new(include_str!("../data/day04"));
     let mut day05 = day05::Day::new(include_str!("../data/day05"));
-    // let mut day06 = day06::Day::new(include_str!("../data/day06"));
+    let mut day06 = day06::Day::new(include_str!("../data/day06"));
     // let mut day07 = day07::Day::new(include_str!("../data/day07"));
     // let mut day08 = day08::Day::new(include_str!("../data/day08"));
     // let mut day09 = day09::Day::new(include_str!("../data/day09"));
@@ -36,7 +36,7 @@ fn run_all_days() {
         Box::new(&mut day03 as &mut dyn AoCDay),
         Box::new(&mut day04 as &mut dyn AoCDay),
         Box::new(&mut day05 as &mut dyn AoCDay),
-        // Box::new(&mut day06 as &mut dyn AoCDay),
+        Box::new(&mut day06 as &mut dyn AoCDay),
         // Box::new(&mut day07 as &mut dyn AoCDay),
         // Box::new(&mut day08 as &mut dyn AoCDay),
         // Box::new(&mut day09 as &mut dyn AoCDay),
