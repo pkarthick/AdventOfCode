@@ -16,43 +16,32 @@ class Data:
         self.blocks: list[Block] = []
         self.data = []
 
-        i = 0
-
-        free = False
-
-        self.count = 0
-
         for ch in input:
             size = int(ch)
             
-            if free:
+            if len(self.blocks) % 2 == 1:
                 self.blocks.append(Block(True, -1, size, len(self.data)))
                 self.data.extend([-1] * size)
-                i += 1
             else:
+                i = len(self.blocks) // 2
                 self.blocks.append(Block(False, i, size, len(self.data)))
                 self.data.extend([i] * size)
-                self.count += size
-
-            free = not free
 
         self.end = -1
 
     def checksum(self):
 
-        count = self.count
         start = 0
         end = len(self.data)-1
         total = 0
 
-        while count > 0:
+        while start <= end:
 
-            while count > 0 and self.data[start] != -1:
+            while start <= end and self.data[start] != -1:
                 total += self.data[start] * start
                 start += 1
-                count -= 1
 
-            while count > 0 and self.data[start] == -1:
+            while start <= end and self.data[start] == -1:
                 
                 while self.data[end] == -1:
                     end -= 1
@@ -60,7 +49,6 @@ class Data:
                 total += self.data[end] * start
                 start += 1
                 end -= 1
-                count -= 1
 
         return total
 
