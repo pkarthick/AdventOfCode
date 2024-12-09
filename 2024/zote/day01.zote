@@ -1,0 +1,4 @@
+include!("stdlib");
+
+contents := read("08.txt"); 
+contents >> print;

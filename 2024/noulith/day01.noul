@@ -1,0 +1,27 @@
+nums := (lines! read_file "../rust/data/day01") map \l -> (words l) map int;
+
+left := []; right := []; counter := {};
+
+for ([n1, n2] <- nums) (
+	left ++= [n1];
+	right ++= [n2];
+	counter[n2] = if (n2 in counter) counter[n2]+1 else 1;
+);
+
+
+#[left, right] := nums fold (\[xs, ys], [x,y] -> ([[x] ++ xs, [y] ++ ys])) from [[], []];
+
+#counter := {};
+
+#for (num <- right) ( 
+#	counter[num] = if (num in counter) counter[num]+1 else 1;
+#);
+
+#nums each \[a,b] -> (xs = [a] ++ xs;  ys = [b] ++ ys); 
+left .= sort; right .= sort;
+
+print! sum! left zip right map \[x,y] -> abs(x - y);
+
+print! sum! left map (\n -> n * if (n in counter) counter[n] else 0);
+
+

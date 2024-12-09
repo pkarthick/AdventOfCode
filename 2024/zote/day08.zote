@@ -1,0 +1,54 @@
+include!("stdlib");
+
+lines := read("../data/08.txt") >> split("\n");
+
+rowcount := lines >> len;
+colcount := lines[0] >> len;
+
+antennas := dict();
+
+fn combinations(rcs) -> {
+    xs := [];
+    for (i, rc) in rcs >> enumerate {
+        for j in [i+1:len(rcs)] {
+            [rc,rcs[j]] >> push(xs);
+        }
+    }
+    xs
+}
+
+for (r, l) in lines >> enumerate {
+    for (c, ch) in l >> enumerate if ch != '.' {
+        if ch >> in(antennas)
+            [r,c] >> push(antennas[ch])
+        else
+            antennas[ch] = [[r,c]];
+    } 
+}
+
+fn is_ok(r,c) -> 0 <= r and r < rowcount and 0 <= c and c < colcount;
+
+uniq := dict();
+
+for (k, v) in antennas {
+    for ((r1,c1), (r2,c2))  in v >> combinations {
+        rd := r1 - r2;
+        cd := c1 - c2;
+        rr1 := r1+rd;
+        cc1 := c1+cd;
+        while is_ok(rr1, cc1) { // change the while to if for part1
+            uniq[[rr1, cc1]] = nil;
+            rr1 = rr1+rd;
+            cc1 = cc1+cd;
+        }
+        rr2 := r2-rd;
+        cc2 := c2-cd;
+        while is_ok(rr2, cc2) { //change the while to if for part1
+            uniq[[rr2, cc2]] = nil;
+            rr2 = rr2-rd;
+            cc2 = cc2-cd;
+        }
+     }
+}
+
+uniq >> len >> print;
