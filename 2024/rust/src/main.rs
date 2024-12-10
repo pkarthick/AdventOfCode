@@ -12,7 +12,7 @@ mod day06;
 mod day07;
 mod day08;
 mod day09;
-// mod day10;
+mod day10;
 
 fn main() {
     run_all_days();
@@ -28,7 +28,7 @@ fn run_all_days() {
     let mut day07 = day07::Day::new(include_str!("../data/day07"));
     let mut day08 = day08::Day::new(include_str!("../data/day08"));
     let mut day09 = day09::Day::new(include_str!("../data/day09"));
-    // let mut day10 = day10::Day::new(include_str!("../data/day10"));
+    let mut day10 = day10::Day::new(include_str!("../data/day10"));
 
     let days: Vec<Box<&mut dyn AoCDay>> = vec![
         Box::new(&mut day01 as &mut dyn AoCDay),
@@ -40,7 +40,7 @@ fn run_all_days() {
         Box::new(&mut day07 as &mut dyn AoCDay),
         Box::new(&mut day08 as &mut dyn AoCDay),
         Box::new(&mut day09 as &mut dyn AoCDay),
-        // Box::new(&mut day10 as &mut dyn AoCDay),
+        Box::new(&mut day10 as &mut dyn AoCDay),
     ];
 
     for (day_index, day) in days.into_iter().enumerate() {
