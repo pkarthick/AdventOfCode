@@ -1,4 +1,4 @@
-use std::{collections::HashSet, hash::Hash, str::FromStr};
+use std::{collections::HashSet, str::FromStr};
 
 use crate::day::AoCDay;
 

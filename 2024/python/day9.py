@@ -27,7 +27,6 @@ class Data:
                 self.blocks.append(Block(False, i, size, len(self.data)))
                 self.data.extend([i] * size)
 
-        self.end = -1
 
     def checksum(self):
 
@@ -54,11 +53,13 @@ class Data:
 
     def defrag(self):
 
+        end = len(self.blocks) - 1
+
         while True:
 
-            while abs(self.end) <= len(self.blocks):
-                if self.blocks[self.end].free:
-                    self.end -= 1
+            while end >= 0:
+                if self.blocks[end].free:
+                    end -= 1
                 else:
                     break
             else:
@@ -66,10 +67,10 @@ class Data:
 
             blocks = self.blocks
 
-            for start in range(0, len(self.blocks)+self.end+1):
+            for start in range(end+1):
 
                 start_block = blocks[start]
-                end_block = blocks[self.end]
+                end_block = blocks[end]
 
                 if start_block.free:
                     if start_block.size == end_block.size:
@@ -89,7 +90,7 @@ class Data:
                         blocks.insert(start+1, Block(True, -1, start_size - end_block.size, st + end_block.size))
                         break
             else:
-                self.end -= 1
+                end -= 1
 
     def checksum2(self):
 

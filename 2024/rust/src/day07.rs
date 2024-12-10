@@ -95,26 +95,12 @@ impl Day {
 
 impl AoCDay for Day {
     fn part1(&mut self) -> String {
-        let mut total = 0;
-
-        for equation in self.equations.iter() {
-            if equation.is_ok(equation.nums[0], 1) {
-                total += equation.test_value;
-            }
-        }
-
+        let total: i64 = self.equations.iter().filter(|equation| equation.is_ok(equation.nums[0], 1)).map(|e| e.test_value).sum();
         total.to_string()
     }
 
     fn part2(&mut self) -> String {
-        let mut total = 0;
-
-        for equation in self.equations.iter() {
-            if equation.is_ok_2(equation.nums[0], 1) {
-                total += equation.test_value;
-            }
-        }
-
+        let total: i64 = self.equations.iter().filter(|equation| equation.is_ok_2(equation.nums[0], 1)).map(|e| e.test_value).sum();
         total.to_string()
     }
 }
