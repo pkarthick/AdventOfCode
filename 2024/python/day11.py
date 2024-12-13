@@ -11,8 +11,8 @@ count_cache = {}
 
 def get(n, t):
 
-    if n in nodes_cache and (t, n) in count_cache:
-        return (nodes_cache[n], count_cache[(t, n)])
+    if n in nodes_cache and (1, n) in count_cache:
+        return (nodes_cache[n], count_cache[(1, n)])
     
     nums = [n]
 
@@ -54,11 +54,14 @@ def get(n, t):
         nums = res
 
     nodes_cache[n] = nums
-    count_cache[(t, n)] = len(nums)
+    count_cache[(1, n)] = len(nums)
 
     return (nums, len(nums))
 
 def get_stones_count(n, base, times):
+
+    if (times, n) in count_cache:
+        return count_cache[(times, n)]
 
     if times == 1:
         (_, total) = get(n, base)
@@ -71,12 +74,10 @@ def get_stones_count(n, base, times):
         total = 0
 
         for n1 in current1:
-            if (base*times, n1) in count_cache:
-                total += count_cache[(base*times, n1)]
-            else:
-                count = get_stones_count(n1, base, times-1)
-                count_cache[(base*times, n1)] = count
-                total += count
+            count = get_stones_count(n1, base, times-1)
+            total += count
+
+        count_cache[(times, n)] = total
 
         return total
 
