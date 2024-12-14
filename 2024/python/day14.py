@@ -20,38 +20,33 @@ for line in PUZZLE_INPUT.splitlines():
     velocities.append(v)
 
 
-def christmas_tree_and_has_easter_egg(positions, continuous_count):
+def christmas_tree_and_has_easter_egg(grid, continuous_count):
 
-    for r in range(height):
-        count = 0
+    count = 0
 
-        for c in range(width):
-            if (r,c) in positions:
+    for row in grid:
+        for robots_count in row:
+            if robots_count > 0:
                 count += 1
+                
+            else:
                 if count == continuous_count:
                     return True
-
-            else:
+                
                 count = 0
 
     return False
 
-def draw_christmas_tree(positions):
+def draw_christmas_tree(grid):
    
     print()
-    print()
-    print()
-    print()
     
-    for r in range(height):
-        for c in range(width):
-            print(' '  if grid[r][c] == 0 else '*', end = '')
+    for row in grid:
+        for c in row:
+            print(' '  if c == 0 else '*', end = '')
 
         print()
 
-    print()
-    print()
-    print()
     print()
 
 def part1(positions):
@@ -82,31 +77,30 @@ part1(positions)
 
 seconds = 0
 
+
 while seconds < 10000:
 
 
-    grid = [[0 for _ in range(width)] for _ in range(height)]
-
-    for (c,r) in positions:
-        grid[r][c] += 1
-
     for i in range(len(positions)):
         x, y = positions[i]
-        grid[y][x] -= 1
-
+        
         xd, yd = velocities[i]
         
         x = (x + xd) % width
         y = (y + yd) % height
 
         positions[i] = (x, y)
-        grid[y][x] += 1
+        
+    grid = [[0 for _ in range(width)] for _ in range(height)]
+
+    for (c,r) in positions:
+        grid[r][c] += 1
 
     seconds += 1
 
-    if christmas_tree_and_has_easter_egg(set(positions), 9):
+    if christmas_tree_and_has_easter_egg(grid, 9):
         print("Part2:", seconds)
-        # draw_christmas_tree(positions)
+        draw_christmas_tree(grid)
         
         break
   
