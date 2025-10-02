@@ -1,14 +1,12 @@
+from collections import defaultdict
 from data.day05 import PUZZLE_INPUT
 
 top, bottom = PUZZLE_INPUT.split('\n\n')
 
-befores = {}
+befores = defaultdict(set)
 
-for [before, after] in map(lambda s: map(int, s.split('|')), top.splitlines()):
-    if after in befores:
-        befores[after].add(before)
-    else:
-        befores[after] = set([before])
+for before, after in map(lambda s: map(int, s.split('|')), top.splitlines()):
+    befores[after].add(before)
 
 sequences = list(map(lambda s: list(map(int, s.split(','))), bottom.splitlines()))
 
@@ -39,30 +37,25 @@ print(total)
 si = 0
 incorrects = set()
 
+def in_order(b):
+    if not is_before(b, sequence[bi]):
+        sequence[bi-1], sequence[bi] = sequence[bi], sequence[bi-1]
+        incorrects.add(si)
+        return False
+    
+    return True
+
+
 while si < len(sequences):
 
     sequence = sequences[si]
 
-    in_order = True
-
     for bi in range(len(sequence)):
-        bs = sequence[:bi]
-    
-        for b in bs:
-            if not is_before(b, sequence[bi]):
-                v = sequence[bi-1]
-                sequence[bi-1] = sequence[bi]
-                sequence[bi] = v
-                in_order = False
-                incorrects.add(si)
-                break
-
-        if not in_order:
+        if not all(map(in_order, sequence[:bi])):
             break
-    
-    if in_order:
+    else:
         si += 1
    
 
-print(sum([sequences[si][len(sequences[si])//2] for si in incorrects]))
+print(sum([seq[len(seq)//2] for si in incorrects if (seq := sequences[si]) ]))
     

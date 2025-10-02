@@ -2,12 +2,27 @@ from data.day09 import PUZZLE_INPUT, TEST_INPUT
 from dataclasses import dataclass
 
 @dataclass
-class Block:
-    free: bool
+class Segment:
     num: int 
     size: int
-    start: int
 
+@dataclass
+class Block:
+    segments: list[Segment]
+    used: int
+    free: int
+
+def accomodate_block(start_block, end_block):
+    if start_block.free >= end_block.used:
+        start_block.segments.extend(end_block.segments)
+        start_block.free -= end_block.used
+        start_block.used += end_block.used
+        end_block.segments.clear()
+        end_block.free += end_block.used
+        end_block.used = 0
+        return True
+    else:
+        return False
 
 class Data:
 
@@ -20,11 +35,11 @@ class Data:
             size = int(ch)
             
             if len(self.blocks) % 2 == 1:
-                self.blocks.append(Block(True, -1, size, len(self.data)))
+                self.blocks.append(Block([], 0, size))
                 self.data.extend([-1] * size)
             else:
                 i = len(self.blocks) // 2
-                self.blocks.append(Block(False, i, size, len(self.data)))
+                self.blocks.append(Block([Segment(i, size)], size, 0))
                 self.data.extend([i] * size)
 
 
@@ -54,43 +69,43 @@ class Data:
     def defrag(self):
 
         end = len(self.blocks) - 1
+        start = 0
 
-        while True:
+        while start < end:
 
-            while end >= 0:
-                if self.blocks[end].free:
-                    end -= 1
-                else:
+            while end >= 0: 
+                if self.blocks[end].used > 0:
                     break
+                end -= 1
             else:
                 break
 
-            blocks = self.blocks
+            end_block = self.blocks[end]
 
-            for start in range(end+1):
+            while start < end and self.blocks[start].free == 0:
+                start += 1
 
-                start_block = blocks[start]
-                end_block = blocks[end]
+            s = start
+                                
+            while s < end:
 
-                if start_block.free:
-                    if start_block.size == end_block.size:
-                        start_block.num = end_block.num
-                        end_block.num = -1
-                        start_block.free = False
-                        end_block.free = True
-                        break
-                    elif start_block.size > end_block.size:
-                        st = start_block.start
-                        start_size = start_block.size
-                        start_block.num = end_block.num
-                        end_block.num = -1
-                        start_block.free = False
-                        end_block.free = True
-                        start_block.size = end_block.size
-                        blocks.insert(start+1, Block(True, -1, start_size - end_block.size, st + end_block.size))
-                        break
+                start_block = self.blocks[s]
+
+                if start_block.free >= end_block.used:
+                    start_block.segments.extend(end_block.segments)
+                    start_block.free -= end_block.used
+                    start_block.used += end_block.used
+                    end_block.segments.clear()
+                    end_block.free += end_block.used
+                    end_block.used = 0
+                    end -= 1
+                    break
+
+                s += 1
+                
             else:
                 end -= 1
+            
 
     def checksum2(self):
 
@@ -100,20 +115,16 @@ class Data:
         total = 0
 
         for block in self.blocks:
-            if not block.free:
-                for _ in range(block.size):
-                    total += i * block.num 
+            for segment in block.segments:
+                for _ in range(segment.size):
+                    total += i * segment.num 
                     i += 1
-            else:
-                i += block.size
+            
+            i += block.free
+            
 
         return total
 
 data = Data(PUZZLE_INPUT)
-
 print(data.checksum())
-
 print(data.checksum2())
-
-
-

@@ -1,4 +1,5 @@
 
+from functools import cache
 from data.day11 import PUZZLE_INPUT, TEST_INPUT
 
 input = PUZZLE_INPUT
@@ -9,18 +10,15 @@ next_nums_cache = {}
 nodes_cache = {}
 count_cache = {}
 
+@cache
 def get(n, t):
-
-    if n in nodes_cache and (1, n) in count_cache:
-        return (nodes_cache[n], count_cache[(1, n)])
     
     nums = [n]
 
     count = 1
 
-    for x in range(1, t+1):
+    for _ in range(1, t+1):
 
-        i = 0
         res = []
 
         for num in nums:
@@ -53,15 +51,10 @@ def get(n, t):
                     
         nums = res
 
-    nodes_cache[n] = nums
-    count_cache[(1, n)] = len(nums)
-
     return (nums, len(nums))
 
-def get_stones_count(n, base, times):
-
-    if (times, n) in count_cache:
-        return count_cache[(times, n)]
+@cache
+def transform_stones(n, base, times):
 
     if times == 1:
         (_, total) = get(n, base)
@@ -69,21 +62,21 @@ def get_stones_count(n, base, times):
     
     else:
 
-        (current1, _) = get(n, base)
+        (stones, _) = get(n, base)
 
         total = 0
 
-        for n1 in current1:
-            count = get_stones_count(n1, base, times-1)
+        for stone in stones:
+            count = transform_stones(stone, base, times-1)
             total += count
 
-        count_cache[(times, n)] = total
+        # count_cache[(times, n)] = total
 
         return total
 
-print(sum([get_stones_count(num, 5, 5) for num in nums])) #part1
+print(sum([transform_stones(num, 5, 5) for num in nums])) #part1
 
 nodes_cache.clear()
 count_cache.clear()
 
-print(sum([get_stones_count(num, 15, 5) for num in nums])) #part1
+print(sum([transform_stones(num, 15, 5) for num in nums])) #part1

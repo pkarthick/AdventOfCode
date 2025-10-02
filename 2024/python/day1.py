@@ -43,13 +43,9 @@ def part1_and_2():
     nums1.sort()
     nums2.sort()
 
-    total1 = 0
-    total2 = 0
+    total1 = sum([abs(num1-num2) for num1, num2 in zip(nums1, nums2)])
+    total2 = sum([num1 * counter.get(num1, 0) for num1 in nums1])
 
-    for num1, num2 in zip(nums1, nums2):
-        total1 += abs(num1-num2)
-        total2 += num1 * counter.get(num1, 0) 
-        
     print(total1)
     print(total2)
 

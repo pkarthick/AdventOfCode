@@ -1,7 +1,8 @@
+from collections import defaultdict
 from itertools import groupby
 from data.day12 import PUZZLE_INPUT, TEST_INPUT
 
-plant_locations = {}
+plant_locations = defaultdict(list)
 
 lines = PUZZLE_INPUT.splitlines()
 
@@ -10,98 +11,106 @@ col_count = len(lines[0])
 
 for r, line in enumerate(lines):
     for c, ch in enumerate(line):
+        plant_locations[ch].append((r, c))
+       
+plants = {}
 
-        if ch in plant_locations:
-            plant_locations[ch].append((r, c))
-        else:
-            plant_locations[ch] = [(r, c)]
-
+def neighbours8(r, c):
+    return [(r1, c1) for (r1,c1) in [(r + 1, c + 1), (r + 1, c - 1), (r - 1, c + 1), (r - 1, c - 1), (r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)] if 0 <= r < row_count and 0 <= c < col_count]
 
 def neighbours(r, c):
-    return [(r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)]
+    return [(r1, c1) for (r1,c1) in [(r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)] if 0 <= r < row_count and 0 <= c < col_count]
 
 
 def create_regions(plant, locs):
 
-    cells = set()
+    plants = []
+    plant_cells = set()
     others = []
+    # locs.sort()
 
-    (r, c) = locs.pop()
-    cells.add((r, c))
-
-    for rr, cc in neighbours(r, c):
-        if 0 <= rr < row_count and 0 <= cc < col_count and (rr, cc) in locs:
-            cells.add((rr, cc))
-            locs.remove((rr, cc))
 
     while locs:
 
-        (r, c) = locs.pop()
+        (r, c) = locs[0]
+        plant_cells.add((r, c))
 
         for rr, cc in neighbours(r, c):
-            if 0 <= rr < row_count and 0 <= cc < col_count and (rr, cc) in cells:
-                cells.add((r, c))
-                break
+            if (rr, cc) in locs:
+                plant_cells.add((rr, cc))
+                # locs.remove((rr, cc))
 
-        else:
-            others.append((r, c))
+        for (r,c) in locs[1:]:
 
-    while True:
+            # (r, c) = locs.pop()
 
-        modified = False
-
-        for r, c in others:
             for rr, cc in neighbours(r, c):
-                if 0 <= rr < row_count and 0 <= cc < col_count and (rr, cc) in cells:
-                    others.remove((r, c))
-                    cells.add((r, c))
-                    modified = True
+                if (rr, cc) in plant_cells:
+                    plant_cells.add((r, c))
                     break
 
-        if not modified:
-            break
+            else:
+                others.append((r, c))
 
-    if others:
-        if len(others) == 1:
-            return [cells, sorted(others)]
-        else:
-            return [cells] + create_regions(plant, others)
-    else:
-        return [cells]
+        plants.append(plant_cells)
+
+        locs = others
+        others = []
+        plant_cells = set([])
+
+    return plants
+
+        # modified = True
+
+        # while modified:
+
+    #     modified = False
+
+    #     for r, c in others:
+    #         for rr, cc in neighbours(r, c):
+    #             if 0 <= rr < row_count and 0 <= cc < col_count and (rr, cc) in plant_cells:
+    #                 others.remove((r, c))
+    #                 plant_cells.add((r, c))
+    #                 modified = True
+    #                 break
+
+    # if others:
+    #     if len(others) == 1:
+    #         return [plant_cells, sorted(others)]
+    #     else:
+    #         return [plant_cells] + create_regions(plant, others)
+    # else:
+    #     return [plant_cells]
 
 
-def area_perimeter_1(locs):
+def area_perimeter_1(plant, locs):
     area = 0
     perimeter = 0
 
-    for r, line in enumerate(lines):
-        count = 0
-        for c, ch in enumerate(line):
+    for (r, c) in locs:
 
-            if (r, c) in locs:
-                count += 1
-                # print(ch, end='')
-                area += 1
+        # print(ch, end='')
+        area += 1
 
-                for rr, cc in [(r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)]:
+        for rr, cc in neighbours(r,c):
 
-                    if 0 <= rr < row_count and 0 <= cc < col_count:
-                        perimeter += 1 if lines[rr][cc] != plant else 0
-                    else:
-                        perimeter += 1
+            if 0 <= rr < row_count and 0 <= cc < col_count:
+                perimeter += 1 if lines[rr][cc] != plant else 0
+            else:
+                perimeter += 1
 
-            # else:
+        # else:
 
-            #     if ch != plant:
-            #         print(' ', end='')
-            #     else:
-            #         print(' ', end='')
+        #     if ch != plant:
+        #         print(' ', end='')
+        #     else:
+        #         print(' ', end='')
 
-        # print()
+    # print()
     return area, perimeter
 
 
-def area_perimeter_2(locs):
+def area_perimeter_2(plant, locs):
     area = 0
     perimeter = 0
 
@@ -166,10 +175,10 @@ for plant, locs in plant_locations.items():
 
     for locs in regs:
 
-        (area1, perimeter1) = area_perimeter_1(locs)
+        (area1, perimeter1) = area_perimeter_1(plant, locs)
         total1 += area1 * perimeter1
 
-        (area2, perimeter2) = area_perimeter_2(locs)
+        (area2, perimeter2) = area_perimeter_2(plant, locs)
         total2 += area2 * perimeter2
 
 

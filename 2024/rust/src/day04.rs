@@ -31,18 +31,15 @@ impl AoCDay for Day {
 
         for row in 0..self.grid.cells.len() {
             for column in 0..self.grid.cells[row].len() {
-                let h = self.grid.read_horizontal(
-                    row,
-                    column,
-                    crate::utils::HorizontalDirection::Right,
-                    4,
-                );
+                let h = self
+                    .grid
+                    .read_horizontal(row, column, crate::utils::HDir::Right, 4);
                 if h == xmas || h == samx {
                     count += 1
                 }
-                let v =
-                    self.grid
-                        .read_vertical(row, column, crate::utils::VerticalDirection::Down, 4);
+                let v = self
+                    .grid
+                    .read_vertical(row, column, crate::utils::VDir::Down, 4);
                 if v == xmas || v == samx {
                     count += 1
                 }
@@ -50,8 +47,8 @@ impl AoCDay for Day {
                 let d = self.grid.read_diagonal(
                     row,
                     column,
-                    crate::utils::HorizontalDirection::Right,
-                    crate::utils::VerticalDirection::Down,
+                    crate::utils::HDir::Right,
+                    crate::utils::VDir::Down,
                     4,
                 );
                 if d == xmas || d == samx {
@@ -61,8 +58,8 @@ impl AoCDay for Day {
                 let d = self.grid.read_diagonal(
                     row,
                     column,
-                    crate::utils::HorizontalDirection::Left,
-                    crate::utils::VerticalDirection::Down,
+                    crate::utils::HDir::Left,
+                    crate::utils::VDir::Down,
                     4,
                 );
                 if d == xmas || d == samx {
@@ -85,16 +82,16 @@ impl AoCDay for Day {
                 let rd = self.grid.read_diagonal(
                     row,
                     column,
-                    crate::utils::HorizontalDirection::Right,
-                    crate::utils::VerticalDirection::Down,
+                    crate::utils::HDir::Right,
+                    crate::utils::VDir::Down,
                     3,
                 );
                 if rd == mas || rd == sam {
                     let ld = self.grid.read_diagonal(
                         row,
                         column + 2,
-                        crate::utils::HorizontalDirection::Left,
-                        crate::utils::VerticalDirection::Down,
+                        crate::utils::HDir::Left,
+                        crate::utils::VDir::Down,
                         3,
                     );
                     if ld == mas || ld == sam {

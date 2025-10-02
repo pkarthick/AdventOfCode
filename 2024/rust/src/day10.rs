@@ -2,44 +2,43 @@ use std::{collections::HashSet, str::FromStr};
 
 use crate::day::AoCDay;
 
-pub struct Day {cells: Vec<Vec<u32>>}
+pub struct Day {
+    cells: Vec<Vec<u32>>,
+}
 
 impl FromStr for Day {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let cells: Vec<Vec<u32>> = s.split('\n').into_iter().map(|l| l.chars().map(|c| c.to_digit(10).unwrap()).collect()).collect();
-        Ok(Day {cells})
+        let cells: Vec<Vec<u32>> = s
+            .split('\n')
+            .map(|l| l.chars().map(|c| c.to_digit(10).unwrap()).collect())
+            .collect();
+        Ok(Day { cells })
     }
 }
 
 impl Day {
-
-
     pub fn traverse(&self, r: usize, c: usize, cur: u32, set: &mut Vec<(usize, usize)>) {
-
         if cur == 9 {
-            set.push((r,c));
+            set.push((r, c));
         } else {
-            if r+1 < self.cells.len() && self.cells[r+1][c] == cur+1 {
-                self.traverse(r+1, c, cur+1, set);
-            } 
-            
-            if r > 0 && self.cells[r-1][c] == cur+1 {
-                self.traverse(r-1, c, cur+1, set);
-            } 
-            
-            if c+1 < self.cells[r].len() && self.cells[r][c+1] == cur+1 {
-                self.traverse(r, c+1, cur+1, set);
-            } 
-            
-            if c > 0 && self.cells[r][c-1] == cur+1 {
-                self.traverse(r, c-1, cur+1, set);
-            } 
-            
+            if r + 1 < self.cells.len() && self.cells[r + 1][c] == cur + 1 {
+                self.traverse(r + 1, c, cur + 1, set);
+            }
 
+            if r > 0 && self.cells[r - 1][c] == cur + 1 {
+                self.traverse(r - 1, c, cur + 1, set);
+            }
+
+            if c + 1 < self.cells[r].len() && self.cells[r][c + 1] == cur + 1 {
+                self.traverse(r, c + 1, cur + 1, set);
+            }
+
+            if c > 0 && self.cells[r][c - 1] == cur + 1 {
+                self.traverse(r, c - 1, cur + 1, set);
+            }
         }
-
     }
 
     pub fn new(input: &str) -> Self {
@@ -49,7 +48,6 @@ impl Day {
 
 impl AoCDay for Day {
     fn part1(&mut self) -> String {
-
         let mut total = 0;
 
         for (r, row) in self.cells.iter().enumerate() {
@@ -67,7 +65,6 @@ impl AoCDay for Day {
     }
 
     fn part2(&mut self) -> String {
-        
         let mut total = 0;
 
         for (r, row) in self.cells.iter().enumerate() {
@@ -83,7 +80,6 @@ impl AoCDay for Day {
         total.to_string()
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -128,3 +124,4 @@ mod tests {
 01329801
 10456732";
 }
+

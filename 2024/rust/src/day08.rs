@@ -1,5 +1,6 @@
 use std::{
-    collections::{HashMap, HashSet}, str::FromStr
+    collections::{HashMap, HashSet},
+    str::FromStr,
 };
 
 use crate::day::AoCDay;
@@ -47,7 +48,7 @@ impl Day {
         Day::from_str(input).unwrap()
     }
 
-    fn combinations(locs: &Vec<(i8, i8)>) -> Vec<((i8, i8), (i8, i8))> {
+    fn combinations(locs: &[(i8, i8)]) -> Vec<((i8, i8), (i8, i8))> {
         let mut combs = vec![];
 
         for i in 0..locs.len() {
@@ -64,20 +65,26 @@ impl Day {
 
         for (_a, locs) in self.antennas.iter() {
             for ((r1, c1), (r2, c2)) in Day::combinations(locs) {
-
                 let rd = r1 - r2;
                 let cd = c1 - c2;
 
                 self.insert_antinodes(r1, c1, rd, cd, &mut uniq, part1);
                 self.insert_antinodes(r2, c2, -rd, -cd, &mut uniq, part1);
-
             }
         }
 
-        return uniq;
+        uniq
     }
 
-    fn insert_antinodes(&self, r: i8, c: i8, rd: i8, cd: i8, uniq: &mut HashSet<(i8, i8)>, part1: bool) {
+    fn insert_antinodes(
+        &self,
+        r: i8,
+        c: i8,
+        rd: i8,
+        cd: i8,
+        uniq: &mut HashSet<(i8, i8)>,
+        part1: bool,
+    ) {
         let mut rr = r;
         let mut cc = c;
 
@@ -104,7 +111,10 @@ impl AoCDay for Day {
     }
 
     fn part2(&mut self) -> String {
-        self.get_antinode_locations(false).union(&self.antenna_locations).count().to_string()
+        self.get_antinode_locations(false)
+            .union(&self.antenna_locations)
+            .count()
+            .to_string()
     }
 }
 

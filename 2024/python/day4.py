@@ -6,7 +6,8 @@ grid = Grid[str, str](PUZZLE_INPUT)
 
 count1 = 0
 
-is_xmas = lambda cell: cell in [['S', 'A', 'M', 'X'], ['X', 'M', 'A', 'S']]
+def is_xmas(cell):
+    return cell in [['S', 'A', 'M', 'X'], ['X', 'M', 'A', 'S']]
 
 for r in range(len(grid.cells)):
     for c in range(len(grid.cells[r])):
@@ -19,7 +20,8 @@ for r in range(len(grid.cells)):
 print(count1)
 count2 = 0
 
-is_match = lambda cell: cell in [['S', 'A', 'M'], ['M', 'A', 'S']]
+def is_match(cell):
+    return cell in [['S', 'A', 'M'], ['M', 'A', 'S']]
 
 for r in range(len(grid.cells)):
     for c in range(len(grid.cells[r])):

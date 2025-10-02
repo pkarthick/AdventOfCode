@@ -1,0 +1,24 @@
+lines := "12.input" >> read >> split("\n");
+
+d := dict();
+
+create_regions := \plant, locs -> {
+    print(len(locs))
+};
+
+for (r, line) in lines >> enumerate {
+    for (c, ch) in line >> enumerate {
+        if ch >> in(d)
+            push([r,c], d[ch])
+        else 
+            d[ch] = [[r,c]];
+    }
+}
+
+for (plant, locs) in d {
+    plant >> print;
+    locs >> print;
+    create_regions(plant, locs);
+}
+
+

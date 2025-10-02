@@ -2,43 +2,39 @@ pub struct Grid<Cell: Copy> {
     pub cells: Vec<Vec<Cell>>,
 }
 
-pub enum HorizontalDirection {
+pub enum HDir {
     Left,
     Right,
 }
 
-pub enum VerticalDirection {
+pub enum VDir {
     Up,
     Down,
 }
 
 impl<Cell: Copy> Grid<Cell> {
     pub fn new(input: &str, mapper: fn(s: &str) -> Vec<Cell>) -> Grid<Cell> {
-        let cells: Vec<Vec<Cell>> = input.split('\n').into_iter().map(mapper).collect();
+        let cells: Vec<Vec<Cell>> = input.split('\n').map(mapper).collect();
         Grid { cells }
     }
 
-    pub fn read_column(&self,column: usize) -> Vec<Cell> {
-        let mut vec = vec![];
-        for r in 0..self.cells.len() {
-            vec.push(self.cells[r][column]);
-        }
-        vec
+    pub fn read_column(&self, ci: usize) -> Vec<Cell> {
+        (0..self.cells.len()).map(|ri| self.cells[ri][ci]).collect()
     }
 
     pub fn read_horizontal(
         &self,
         row: usize,
         column: usize,
-        direction: HorizontalDirection,
+        direction: HDir,
         count: usize,
     ) -> Vec<Cell> {
         match direction {
-            HorizontalDirection::Right => (column..column + count)
+            HDir::Right => (column..column + count)
                 .filter(|c| *c < self.cells[row].len())
                 .map(|c| self.cells[row][c])
                 .collect(),
-            HorizontalDirection::Left => {
+            HDir::Left => {
                 let c = if column >= count - 1 {
                     column - count + 1
                 } else {
@@ -56,15 +52,15 @@ impl<Cell: Copy> Grid<Cell> {
         &self,
         row: usize,
         column: usize,
-        direction: VerticalDirection,
+        direction: VDir,
         count: usize,
     ) -> Vec<Cell> {
         match direction {
-            VerticalDirection::Down => (row..row + count)
+            VDir::Down => (row..row + count)
                 .filter(|r| *r < self.cells.len())
                 .map(|r| self.cells[r][column])
                 .collect(),
-            VerticalDirection::Up => {
+            VDir::Up => {
                 let r = if row >= count - 1 { row - count + 1 } else { 0 };
                 (r..r + count)
                     .filter(|r| *r < self.cells.len())
@@ -78,8 +74,8 @@ impl<Cell: Copy> Grid<Cell> {
         &self,
         row: usize,
         column: usize,
-        horizontal_direction: HorizontalDirection,
-        vertical_direction: VerticalDirection,
+        horizontal_direction: HDir,
+        vertical_direction: VDir,
         count: usize,
     ) -> Vec<Cell> {
         let r = row as i32;
@@ -89,10 +85,10 @@ impl<Cell: Copy> Grid<Cell> {
         let mut result = vec![];
 
         let (cs, rs) = match (horizontal_direction, vertical_direction) {
-            (HorizontalDirection::Left, VerticalDirection::Up) => (-1, -1),
-            (HorizontalDirection::Left, VerticalDirection::Down) => (-1, 1),
-            (HorizontalDirection::Right, VerticalDirection::Up) => (1, -1),
-            (HorizontalDirection::Right, VerticalDirection::Down) => (1, 1),
+            (HDir::Left, VDir::Up) => (-1, -1),
+            (HDir::Left, VDir::Down) => (-1, 1),
+            (HDir::Right, VDir::Up) => (1, -1),
+            (HDir::Right, VDir::Down) => (1, 1),
         };
 
         let rlen = self.cells.len() as i32;

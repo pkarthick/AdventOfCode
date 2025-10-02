@@ -1,8 +1,6 @@
 from data.day02 import PUZZLE_INPUT
-
+from utils import Grid
 from itertools import pairwise
-from collections import Counter
-
 
 def is_safe(levels):
 
@@ -13,8 +11,6 @@ def is_safe(levels):
 
 count1 = 0
 count2 = 0
-
-from utils import Grid
 
 class MyGrid(Grid):
     def create_cells(self, s: str) -> list[int]:
